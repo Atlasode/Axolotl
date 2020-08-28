@@ -1,0 +1,3 @@
+enum ModelPageMode {
+  CREATE, EDIT
+}

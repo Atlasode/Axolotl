@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "791632092614",
+    "firebase_url": "https://axolotl-252ea.firebaseio.com",
+    "project_id": "axolotl-252ea",
+    "storage_bucket": "axolotl-252ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791632092614:android:b775e6cddbe000e25ba6c7",
+        "android_client_info": {
+          "package_name": "de.playground_development.axolotl"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "791632092614-0dt595b2293dej8455rp5vlu69r6psvn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCzYbAP5A1jMeZXeepD6u8AoiIEtQwdnc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "791632092614-0dt595b2293dej8455rp5vlu69r6psvn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
