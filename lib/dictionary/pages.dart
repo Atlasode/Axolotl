@@ -116,10 +116,10 @@ class _DictionaryPageState extends State<DictionaryPage> {
         if (infinitive == null) {
           return new Center(
               child: new Container(
-                  height: 480,
+                  height: 440,
                   child: GridView.count(
                     primary: false,
-                    padding: const EdgeInsets.all(80),
+                    padding: const EdgeInsets.all(50),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                     crossAxisCount: 2,
