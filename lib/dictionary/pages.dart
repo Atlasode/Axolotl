@@ -1,5 +1,7 @@
 import 'dart:collection';
+import 'dart:math';
 
+import 'package:axolotl/common/loading_widget.dart';
 import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:axolotl/vocabulary/vocabulary_page.dart';
@@ -9,113 +11,213 @@ import 'package:axolotl/utils/common_utils.dart';
 
 enum OptionEntry { FILTER }
 
-class DictionaryPage extends StatelessWidget {
-  final String title;
+class DictionaryOptionButton {
+  static List<DictionaryOptionButton> buttons = [
+    DictionaryOptionButton('Search', Icons.search, (context, state) async {
+      String infinitive = await showSearch(context: context, delegate: DictionarySearch());
+      state.setInfinitive(infinitive);
+    }),
+    DictionaryOptionButton('Add', Icons.add, (context, state) {
 
-  const DictionaryPage({Key key, this.title = 'Dictionary'}) : super(key: key);
+    }),
+    DictionaryOptionButton('Edit', Icons.create, (context, state) {
+
+    }),
+    DictionaryOptionButton('Settings', Icons.settings, (context, state) {
+
+    })
+  ];
+
+  final String title;
+  final IconData icon;
+  final void Function(BuildContext context, _DictionaryPageState state) onPressed;
+
+  DictionaryOptionButton(this.title, this.icon, this.onPressed);
+}
+
+class _DictionaryPageState extends State<DictionaryPage> {
+  Map<String, GlobalKey> keys = {};
+  String infinitive;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void setInfinitive(String infinitive){
+    setState(() {
+      this.infinitive = infinitive;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
+        bottom: infinitive != null
+            ? AppBar(
+                title: Text(infinitive.capitalize()),
+                leading: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    setInfinitive(null);
+                  },
+                ),
+              )
+            : null,
         actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              showSearch(context: context, delegate: DictionarySearch());
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {},
-          ),
+          ...DictionaryOptionButton.buttons.map((button) => IconButton(
+            icon: Icon(button.icon),
+            onPressed: ()=>button.onPressed(context, this),
+          ))
         ],
       ),
-      body: Container(
-          child: CustomScrollView(
-        slivers: [
-          /*SliverAppBar(
-            title: Text("Test"),
-            pinned: true,
-          ),*/
-          SliverPadding(
-              padding: EdgeInsets.all(10.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    String text = VocabularyStorage.defaultVocabularies[index];
-                    return FutureBuilder<Verb>(
-                      future: Repositories.verbRepository.getVerb(VerbDefinition(text)),
-                      builder: (context, data){
-                        if(data.data != null){
-                          Verb verb = data.data;
-                          return Container(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: Divider.createBorderSide(context, width: 2),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(verb.infinitive.capitalize()),
-                                  DataTable(
-                                    columns: [
-                                      DataColumn(label: Text('Pronombre')),
-                                      DataColumn(label: Text('Conjugation'))
-                                    ],
-                                    rows: [
-                                      DataRow(cells: [
-                                        DataCell(Text('Yo')),
-                                        DataCell(Text(verb.forms[0]))
-                                      ]),
-                                      DataRow(cells: [
-                                        DataCell(Text('Tú')),
-                                        DataCell(Text(verb.forms[1]))
-                                      ]),
-                                      DataRow(cells: [
-                                        DataCell(Text('El / Ella / Usted')),
-                                        DataCell(Text(verb.forms[2]))
-                                      ]),
-                                      DataRow(cells: [
-                                        DataCell(Text('Nosotros / Nosotras')),
-                                        DataCell(Text(verb.forms[3]))
-                                      ]),
-                                      DataRow(cells: [
-                                        DataCell(Text('Vosotros / Vosotras')),
-                                        DataCell(Text(verb.forms[4]))
-                                      ]),
-                                      DataRow(cells: [
-                                        DataCell(Text('Ellos / Ellas/ Ustedes')),
-                                        DataCell(Text(verb.forms[5]))
-                                      ])
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          );
-                        }
-                        return ListTile(
-                          title: Text("Waiting..."),
+      drawer: Drawer(
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    trailing: Icon(
+                      Icons.library_books,
+                      size: 40,
+                    ),
+                    title: Text('Drawer Header'),
+                    subtitle: infinitive != null ? Text(infinitive.capitalize(), style: Theme.of(context).textTheme.subtitle2,) : null,
+                    contentPadding: EdgeInsets.zero,
+                  )
+                ],
+              ),
+            ),
+            ...VerbCategory.categoriesByMood.entries
+                .map((entry) => ExpansionTile(
+                      title: Text(entry.key.capitalize()),
+                      children: [
+                        ...entry.value.map((category) => ListTile(
+                              title: Text(category.tense),
+                              dense: true,
+                              onTap: () {
+                                Scrollable.ensureVisible(
+                                    keys[category.mood + "_" + category.tense]
+                                        .currentContext);
+                              },
+                            ))
+                      ],
+                    ))
+          ],
+        ),
+      ),
+      body: Container(child: Builder(builder: (context) {
+        if (infinitive == null) {
+          return new Center(
+              child: new Container(
+                  height: 480,
+                  child: GridView.count(
+                    primary: false,
+                    padding: const EdgeInsets.all(80),
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    crossAxisCount: 2,
+                    children: [
+                      ...DictionaryOptionButton.buttons.map((button) => Column(
+                            children: [
+                              IconButton(
+                                  icon: Icon(button.icon),
+                                  iconSize: 100,
+                                  onPressed: ()=>button.onPressed(context, this)),
+                              Text(button.title)
+                            ],
+                          )),
+                    ],
+                  )));
+        }
+        return FutureBuilder<Iterable<Verb>>(
+            future: Future.wait(VerbCategory.validCategories.map((category) =>
+                Repositories.verbRepository
+                    .getVerb(VerbDefinition(infinitive, category)))),
+            builder: (context, data) {
+              Iterable<Verb> verbs = data.data;
+              if (verbs == null) {
+                return LoadingWidget();
+              }
+              return SingleChildScrollView(
+                  child: ExpansionPanelList.radio(
+                      expandedHeaderPadding: EdgeInsets.only(
+                          top: 64.0 - kMinInteractiveDimension,
+                          bottom: 48.0 - kMinInteractiveDimension),
+                      children: verbs.map((verb) {
+                        VerbCategory category = verb.category;
+                        return ExpansionPanelRadio(
+                          value: verb,
+                          canTapOnHeader: true,
+                          headerBuilder: (context, expanded) => ListTile(
+                            title: Text('${category.mood} ${category.tense}'),
+                            subtitle: Text(verb.verbEnglish),
+                            key: keys.putIfAbsent(
+                                category.mood + "_" + category.tense,
+                                () => GlobalKey(
+                                    debugLabel:
+                                        category.mood + "_" + category.tense)),
+                          ),
+                          body: SizedBox(
+                              width: double.infinity,
+                              child: DataTable(
+                                columns: [
+                                  DataColumn(label: Text('Pronombre')),
+                                  DataColumn(label: Text('Conjugation')),
+                                ],
+                                rows: [
+                                  DataRow(cells: [
+                                    DataCell(Text('Yo')),
+                                    DataCell(Text(verb.forms[0]))
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('Tú')),
+                                    DataCell(Text(verb.forms[1]))
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('El / Ella / Usted')),
+                                    DataCell(Text(verb.forms[2]))
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('Nosotros / Nosotras')),
+                                    DataCell(Text(verb.forms[3]))
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('Vosotros / Vosotras')),
+                                    DataCell(Text(verb.forms[4]))
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('Ellos / Ellas/ Ustedes')),
+                                    DataCell(Text(verb.forms[5]))
+                                  ])
+                                ],
+                              )),
                         );
-                      },
-                    );
-                  },
-                  childCount: VocabularyStorage.defaultVocabularies.length,
-                ),
-              ))
-        ],
-      )),
+                      }).toList()));
+            });
+      })),
     );
   }
 }
 
-class DictionarySearch extends SearchDelegate {
+class DictionaryPage extends StatefulWidget {
+  final String title;
+
+  const DictionaryPage({Key key, this.title = 'Dictionary'}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _DictionaryPageState();
+}
+
+class DictionaryVerb {}
+
+class DictionarySearch extends SearchDelegate<String> {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -142,64 +244,60 @@ class DictionarySearch extends SearchDelegate {
   Widget buildResults(BuildContext context) {
     return FutureBuilder<List<String>>(
         initialData: [],
-        future: Future.microtask(() => [...VocabularyStorage.defaultVocabularies,
-          ...VocabularyStorage.defaultVocabularies,
-          ...VocabularyStorage.defaultVocabularies].where((e) => e.contains(query)).toList()),
+        future: Repositories.verbRepository.getVerbsQuery(query),
         builder: (context, data) {
           return Container(
               child: CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                      padding: EdgeInsets.all(10.0),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                            String text = data.data[index];
-                            return ListTile(
-                              title: Text(text.capitalize()),
-                              onTap: () {
-                                close(context, text);
-                              },
-                            );
+            slivers: [
+              SliverPadding(
+                  padding: EdgeInsets.all(10.0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        String text = data.data[index];
+                        return ListTile(
+                          title: Text(text.capitalize()),
+                          onTap: () {
+                            close(context, text);
                           },
-                          childCount: data.data.length,
-                        ),
-                      ))
-                ],
-              ));
+                        );
+                      },
+                      childCount: data.data.length,
+                    ),
+                  ))
+            ],
+          ));
         });
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     return FutureBuilder<List<String>>(
-      initialData: [],
-        future: Future.microtask(() => [...VocabularyStorage.defaultVocabularies,
-        ...VocabularyStorage.defaultVocabularies,
-        ...VocabularyStorage.defaultVocabularies].where((e) => e.contains(query)).toList()),
+        initialData: [],
+        future: Repositories.verbRepository.getVerbsQuery(query),
         builder: (context, data) {
-      return Container(
-          child: CustomScrollView(
-        slivers: [
-          SliverPadding(
-              padding: EdgeInsets.all(10.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    String text = data.data[index];
-                    return ListTile(
-                      title: Text(text.capitalize()),
-                      onTap: () {
-                        query = text;
-                        showResults(context);
+          return Container(
+              child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                  padding: EdgeInsets.all(10.0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        String text = data.data[index];
+                        return ListTile(
+                          title: Text(text.capitalize()),
+                          onTap: () {
+                            query = text;
+                            showResults(context);
+                          },
+                        );
                       },
-                    );
-                  },
-                  childCount: data.data.length,
-                ),
-              ))
-        ],
-      ));
-    });
+                      childCount: data.data.length,
+                    ),
+                  ))
+            ],
+          ));
+        });
   }
 }

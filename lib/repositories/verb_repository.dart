@@ -17,6 +17,10 @@ import 'package:moor/moor.dart';
 //part 'verb_repository.g.dart';
 
 abstract class VerbRepository {
+  Future<Set<String>> getAllVerbs();
+
+  Future<List<String>> getVerbsQuery(String infinitive);
+
   Future<Verb> getVerb(VerbDefinition pair);
 
   Future<Iterable<Verb>> getVerbs(VerbInfoRange info);
@@ -42,13 +46,15 @@ class SQLRepository implements VerbRepository {
 
   BehaviorSubject<bool> ready = BehaviorSubject.seeded(false);
   BehaviorSubject<Database> database = new BehaviorSubject<Database>();
-  BehaviorSubject<List<String>> tenses = new BehaviorSubject<List<String>>();
-  BehaviorSubject<List<String>> moods = new BehaviorSubject<List<String>>();
+  BehaviorSubject<Set<String>> verbs = new BehaviorSubject<Set<String>>.seeded({});
+  BehaviorSubject<List<String>> tenses = new BehaviorSubject<List<String>>.seeded([]);
+  BehaviorSubject<List<String>> moods = new BehaviorSubject<List<String>>.seeded([]);
 
   SQLRepository() {
     loadDatabase();
     ready.listen((value) {
       if (value) {
+        database.value.transaction((txn) => txn.query(tableVerbs, columns: [columnInfinitive]).then((value) => verbs.add(value.map((e) => e[columnInfinitive] as String).toSet())));
         database.value.transaction((txn) => txn.query('tense').then((value) =>
             tenses.add(value.map((row) => row['tense'] as String).toList())));
         database.value.transaction((txn) => txn.query('mood').then((value) =>
@@ -243,6 +249,17 @@ class SQLRepository implements VerbRepository {
     database.close();
     moods.close();
     tenses.close();
+    verbs.close();
+  }
+
+  @override
+  Future<Set<String>> getAllVerbs() {
+    return verbs.first;
+  }
+
+  @override
+  Future<List<String>> getVerbsQuery(String infinitive) {
+    return getAllVerbs().then((value) => value.where((e) => e.startsWith(infinitive)).toList());
   }
 }
 
@@ -421,6 +438,16 @@ class FirebaseRepository implements VerbRepository {
 
   @override
   Future<Iterable<Verb>> getVerbs(VerbInfoRange info) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Set<String>> getAllVerbs() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<String>> getVerbsQuery(String infinitive) {
     throw UnimplementedError();
   }
 

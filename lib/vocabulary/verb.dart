@@ -16,6 +16,8 @@ enum Person {
 
 enum PersonType { NONE, ALL, SELECTED }
 
+
+
 @JsonSerializable()
 class PersonList {
   static const PersonList EMPTY = PersonList(const [], PersonType.NONE);
@@ -153,8 +155,33 @@ class VerbDefinition {
   Map<String, dynamic> toJson() => _$VerbDefinitionToJson(this);
 }
 
+
+
 @JsonSerializable()
 class VerbCategory {
+  static const List<VerbCategory> validCategories = [
+    const VerbCategory(mood: 'Indicativo', tense: 'Presente'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Futuro'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Imperfecto'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Pretérito'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Condicional'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Presente perfecto'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Futuro perfecto'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Pluscuamperfecto'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Pretérito anterior'),
+    const VerbCategory(mood: 'Indicativo', tense: 'Condicional perfecto'),
+    const VerbCategory(mood: 'Subjuntivo', tense: 'Presente'),
+    const VerbCategory(mood: 'Subjuntivo', tense: 'Imperfecto'),
+    const VerbCategory(mood: 'Subjuntivo', tense: 'Futuro'),
+    const VerbCategory(mood: 'Subjuntivo', tense: 'Presente perfecto'),
+    const VerbCategory(mood: 'Subjuntivo', tense: 'Futuro perfecto'),
+    const VerbCategory(mood: 'Subjuntivo', tense: 'Pluscuamperfecto'),
+    const VerbCategory(mood: 'Imperativo Afirmativo', tense: 'Presente'),
+    const VerbCategory(mood: 'Imperativo Negativo',	tense: 'Presente'),
+  ];
+
+  static Map<String, Set<VerbCategory>> _categoriesByMood;
+
   @JsonKey(required: true, defaultValue: 'Indicativo')
   final String mood;
   @JsonKey(required: true, defaultValue: 'Presente')
@@ -170,6 +197,16 @@ class VerbCategory {
 
   factory VerbCategory.fromJson(Map<String, dynamic> json) =>
       _$VerbCategoryFromJson(json);
+
+  static Map<String, Set<VerbCategory>> get categoriesByMood {
+    if(_categoriesByMood == null){
+      _categoriesByMood = {};
+      for(VerbCategory category in validCategories){
+        _categoriesByMood.putIfAbsent(category.mood, ()=>{}).add(category);
+      }
+    }
+    return _categoriesByMood;
+  }
 
   VerbCategory copyWith({String mood, String tense, PersonList personList}) =>
       VerbCategory(
