@@ -1,5 +1,6 @@
 
 import 'package:axolotl/common/app_state.dart';
+import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/list/edit/actions.dart';
 import 'package:axolotl/vocabulary/list/edit/reducers.dart';
 import 'package:axolotl/vocabulary/list/edit/states.dart';
@@ -42,7 +43,12 @@ VocabularyListState loadList(VocabularyListState state, VocabularyListLoaded act
 VocabularyListState finish(VocabularyListState state, VocabularyListFinish action) {
   VocabularyListEditState editState = state.currentEdit;
   List<VocabularyList> newList = List.of(state.lists);
-  newList[editState.index] = editState.toList();
+  Repositories.listRepository.addList(editState.toList());
+  if(editState.index != null) {
+    newList[editState.index] = editState.toList();
+  }else{
+    newList.add(editState.toList());
+  }
   return state.copyWith(
     lists: newList
   );

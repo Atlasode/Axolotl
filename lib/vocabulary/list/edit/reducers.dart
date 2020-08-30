@@ -17,6 +17,7 @@ final Reducer<VocabularyListEditState> listEditReducer = combineReducers([
   new TypedReducer<VocabularyListEditState, VocabularyListEditFinish>(finish),
   new TypedReducer<VocabularyListEditState, VocabularyListEditRemoveInfo>(removeInfo),
   new TypedReducer<VocabularyListEditState, VocabularyListEditOpen>(openEdit),
+  new TypedReducer<VocabularyListEditState, VocabularyListEditSetName>(setName),
   new TypedReducer<VocabularyListEditState, CategoryCacheAction>(cacheReduce),
   new TypedReducer<VocabularyListEditState, VocabularyListEditChangeType>(changeType),
   new TypedReducer<VocabularyListEditState, dynamic>(updateEdit)
@@ -25,6 +26,12 @@ final Reducer<VocabularyListEditState> listEditReducer = combineReducers([
 VocabularyListEditState updateEdit(VocabularyListEditState state, dynamic action){
   return state.copyWith(
     currentEdit: infoReducer(state.currentEdit, action)
+  );
+}
+
+VocabularyListEditState setName(VocabularyListEditState state, VocabularyListEditSetName action){
+  return state.copyWith(
+    name: action.name
   );
 }
 
@@ -42,7 +49,11 @@ VocabularyListEditState finish(VocabularyListEditState state, VocabularyListEdit
   }
   AbstractInfoEntryState editState = state.currentEdit;
   List<AbstractInfo> newList = List.of(state.infoEdits);
-  newList[editState.index] = editState.toInfo();
+  if(editState.index != null) {
+    newList[editState.index] = editState.toInfo();
+  }else{
+    newList.add(editState.toInfo());
+  }
   return state.copyWith(
       infoEdits: newList.toList(growable: false)
   );

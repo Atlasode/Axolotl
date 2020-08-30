@@ -55,6 +55,12 @@ class VocabularyListEditChangeType extends VocabularyListEditAction  {
   VocabularyListEditChangeType(this.type);
 }
 
+class VocabularyListEditSetName extends VocabularyListEditAction  {
+  final String name;
+
+  VocabularyListEditSetName(this.name);
+}
+
 class CategoryCacheAction {
   const CategoryCacheAction();
 }

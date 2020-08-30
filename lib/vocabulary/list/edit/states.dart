@@ -38,11 +38,13 @@ class CategoryCacheState {
 class VocabularyListEditState {
   final CategoryCacheState categoryCache;
   final List<AbstractInfo> infoEdits;
+  final String name;
   final VocabularyList list;
   final InfoEntryState currentEdit;
   final int index;
 
   const VocabularyListEditState({
+    this.name,
     this.infoEdits = const [],
     this.currentEdit = EmptyInfoEditState.INSTANCE,
     this.list = VocabularyList.EMPTY,
@@ -51,17 +53,20 @@ class VocabularyListEditState {
   });
 
   factory VocabularyListEditState.fromList(VocabularyList list, int index){
-    return VocabularyListEditState(infoEdits: list.createInfoList(), list:  list, index: index);
+    return VocabularyListEditState(infoEdits: list.createInfoList(), list:  list, index: index, name: list.displayName);
   }
 
   VocabularyList toList(){
     return list.copyWith(
+      displayName: name,
+      name: name.toLowerCase().replaceAll(' ', '_'),
       entries: infoEdits.map((info) => EntryPair(info.getType(), info)).toList()
     );
   }
 
-  VocabularyListEditState copyWith({List<AbstractInfo> infoEdits, InfoEntryState currentEdit, VocabularyList list, int index, CategoryCacheState categoryCache})
+  VocabularyListEditState copyWith({String name, List<AbstractInfo> infoEdits, InfoEntryState currentEdit, VocabularyList list, int index, CategoryCacheState categoryCache})
   => VocabularyListEditState(
+      name: name??this.name,
       infoEdits: infoEdits??this.infoEdits,
       currentEdit:currentEdit??this.currentEdit,
       list: list??this.list,

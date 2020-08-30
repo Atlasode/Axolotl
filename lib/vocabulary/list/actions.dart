@@ -60,6 +60,7 @@ class VocabularyListOpen extends VocabularyListAction{
 }
 
 Future<void> fetchListsAction(bool dummyList) async{
+  Redux.store.dispatch(VocabularyListLoading(LoadingState.LOADING));
   List<EntryPair> entries = VocabularyStorage.defaultVocabularies.map((e) => EntryPair(InfoType.VERB_RANGE, VerbInfoRange(e))).toList();
   entries.add(EntryPair(
       InfoType.VERB_RANGE,
@@ -95,7 +96,6 @@ Future<void> fetchListsAction(bool dummyList) async{
         entries.toList()
     )
   ];
-  Redux.store.dispatch(VocabularyListLoading(LoadingState.LOADING));
   Iterable<VocabularyList> lists;
   if(dummyList){
     lists = dummyLists;

@@ -43,11 +43,10 @@ class _CategoryCache {
 }
 
 class VocabularyEntryPage extends StatefulWidget {
-  final AbstractInfo info;
   final ModelPageMode editMode;
 
   const VocabularyEntryPage(
-      {Key key, @required this.info, this.editMode = ModelPageMode.CREATE})
+      {Key key, this.editMode = ModelPageMode.CREATE})
       : super(key: key);
 
   @override
@@ -80,9 +79,7 @@ class _VocabularyEntryPageState extends State<VocabularyEntryPage> {
             case InfoType.VERB_RANGE:
               typeEdit = StoreConnector<AppState, _CategoryCache>(
                 distinct: true,
-                converter: (store) => _CategoryCache(
-                    store.state.vocabularyList.currentEdit.categoryCache,
-                    widget.info),
+                converter: (store) => _CategoryCache(store.state.vocabularyList.currentEdit.categoryCache, infoState.info),
                 builder: (context, data) {
                   if (data.state.loadingState == LoadingState.LOADING) {
                     return Text("");
@@ -128,12 +125,7 @@ class _VocabularyEntryPageState extends State<VocabularyEntryPage> {
                             ],
                             value: selectedType,
                             onChanged: (value) {
-                              Redux.store.dispatch(VocabularyListEditChangeType(value));
-                              /*if (selectedType != value) {
-                                setState(() {
-                                  selectedType = value;
-                                });
-                              }*/
+                              Redux.dispatch(VocabularyListEditChangeType(value));
                             },
                             elevation: 5,
                           ),
@@ -152,9 +144,7 @@ class _VocabularyEntryPageState extends State<VocabularyEntryPage> {
                     ])),
             resizeToAvoidBottomInset: false,
             floatingActionButton: FloatingActionButton(
-              child: Icon(widget.editMode == ModelPageMode.EDIT
-                  ? Icons.check
-                  : Icons.add),
+              child: Icon(Icons.check),
               onPressed: () {
                 Redux.dispatch(VocabularyListEditFinish());
                 Navigator.pop(context);

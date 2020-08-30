@@ -12,7 +12,7 @@ part 'vocabulary_list.g.dart';
 @JsonSerializable(explicitToJson: true)
 class VocabularyList {
   // ignore: non_constant_identifier_names
-  static const EMPTY = VocabularyList("empty", "Empty", const []);
+  static const EMPTY = VocabularyList("", "", const []);
   // ignore: non_constant_identifier_names
   static final DUMMY = VocabularyList(
       "dummy",

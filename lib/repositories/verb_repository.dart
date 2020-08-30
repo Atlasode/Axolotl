@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:axolotl/vocabulary/list/vocabulary_list.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:axolotl/utils/common_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

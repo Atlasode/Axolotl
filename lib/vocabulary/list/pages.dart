@@ -26,7 +26,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
   @override
   void initState() {
     if (Redux.store.state.vocabularyList.loadingState == LoadingState.NONE) {
-      fetchListsAction(true);
+      fetchListsAction(false);
     }
     super.initState();
   }
@@ -50,9 +50,11 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
+
+          Redux.dispatch(VocabularyListOpen(VocabularyList.EMPTY, null));
           FlutterUtils.pushPage(
               context: context,
-              builder: (context) => VocabularyListEditPage(list: VocabularyList.DUMMY));
+              builder: (context) => VocabularyListEditPage());
         },
       ),
     );
@@ -107,8 +109,7 @@ class VocabularyListView extends StatelessWidget {
                               Redux.dispatch(VocabularyListOpen(list, index));
                               FlutterUtils.pushPage(
                                   context: context,
-                                  builder: (context) => VocabularyListEditPage(
-                                      list: VocabularyList.DUMMY));
+                                  builder: (context) => VocabularyListEditPage());
                             },
                           ),
                           RaisedButton(

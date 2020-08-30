@@ -16,10 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
 class VocabularyListEditPage extends StatefulWidget {
-  final VocabularyList list;
   final ModelPageMode mode;
 
-  const VocabularyListEditPage({Key key, @required this.list, this.mode})
+  const VocabularyListEditPage({Key key, this.mode})
       : super(key: key);
 
   @override
@@ -27,32 +26,69 @@ class VocabularyListEditPage extends StatefulWidget {
 }
 
 class _VocabularyListEditPageState extends State<VocabularyListEditPage> {
+  //TODO: Force input so you can not create files with no name
+  final TextEditingController nameController = TextEditingController();
+  bool initedController = false;
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.list.displayName),
-        leading: BackButton(onPressed: (){
-          Redux.dispatch(VocabularyListFinish());
-          Navigator.maybePop(context);
-        }),
+        title: Text(
+            widget.mode == ModelPageMode.EDIT ? 'Edit List' : 'Create List'),
+        leading: BackButton(),
       ),
       body: StoreConnector<AppState, VocabularyListEditState>(
         converter: (store) => store.state.vocabularyList.currentEdit,
         distinct: true,
         builder: (context, listState) {
-          return VocabularyListEditView(entries: List.of(listState.infoEdits));
+          if(!initedController){
+            nameController.text = listState.name;
+            initedController = true;
+          }
+          return Form(
+            key: _formKey,
+            child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                      labelText: "Name",
+                      icon: Icon(Icons.library_books),
+                      border: OutlineInputBorder()),
+                  onChanged: (text){
+                    Redux.dispatch(VocabularyListEditSetName(text));
+                  },
+                  validator: (text){
+                    if(text.isEmpty){
+                      return 'Please enter a name';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              RaisedButton(child: Text('Add Entry'),
+              onPressed: (){
+                Redux.dispatch(VocabularyListEditOpen(VerbInfoRange(""), null));
+                FlutterUtils.pushPage(
+                    context: context,
+                    builder: (context) =>
+                        VocabularyEntryPage(editMode: ModelPageMode.CREATE));
+              },),
+              VocabularyListEditView(entries: List.of(listState.infoEdits)),
+            ]),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.check),
         onPressed: () {
-          FlutterUtils.pushPage(
-              context: context,
-              builder: (context) => VocabularyEntryPage(
-                    editMode: ModelPageMode.CREATE,
-                    info: VerbInfoRange(""),
-                  ));
+          if(_formKey.currentState.validate()){
+            Redux.dispatch(VocabularyListFinish());
+            Navigator.maybePop(context);
+          }
         },
       ),
     );
@@ -66,22 +102,6 @@ class VocabularyListEditView extends StatelessWidget {
 
   Widget _buildEntry(AbstractInfo info) {
     switch (info.getType()) {
-      /*case InfoType.VERB:
-        VerbInfo info = pair.provider as VerbInfo;
-        return ListTile(
-            title: Text(info.infinitive.capitalize()),
-            subtitle: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text('Mood: ${info.mood}'),
-                      SizedBox(width: 15,),
-                      Text('Tense: ${info.tense}')
-                    ],
-                  )
-                ]));*/
       case InfoType.VERB_RANGE:
         VerbInfoRange rangeInfo = info as VerbInfoRange;
         return ListTile(
@@ -124,12 +144,11 @@ class VocabularyListEditView extends StatelessWidget {
                           RaisedButton(
                             child: Text("Edit"),
                             onPressed: () {
-                              Redux.store.dispatch(VocabularyListEditOpen(
-                                  info, index));
+                              Redux.store.dispatch(
+                                  VocabularyListEditOpen(info, index));
                               FlutterUtils.pushPage(
                                 context: context,
                                 builder: (context) => VocabularyEntryPage(
-                                  info: info,
                                   editMode: ModelPageMode.EDIT,
                                 ),
                               );
