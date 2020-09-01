@@ -50,7 +50,7 @@ abstract class AbstractInfoEntryState<I extends AbstractInfo>
         case InfoType.VERB_RANGE:
           return VerbEntryState(index: index, info: VerbInfoRange(""));
         case InfoType.VOCABULARY:
-          return VocabularyEntryState(index: index, info: VocabularyInfo());
+          return VocabularyEntryState(index: index, info: VocabularyInfo("", "", ""));
         default:
           return EmptyInfoEditState.INSTANCE;
       }
@@ -62,14 +62,15 @@ abstract class AbstractInfoEntryState<I extends AbstractInfo>
 
 @immutable
 class VocabularyEntryState extends AbstractInfoEntryState<VocabularyInfo> {
-  VocabularyEntryState({VocabularyInfo info, int index}) : super(info, index);
+  final int vocabularyID;
+
+  VocabularyEntryState({VocabularyInfo info, int index, this.vocabularyID}) : super(info, index);
 
   VocabularyEntryState copyWith(
           {VocabularyInfo info,
           int index,
-          VerbCategory category,
-          String infinitive}) =>
-      VocabularyEntryState(info: info ?? this.info, index: index ?? this.index);
+          int vocabularyID}) =>
+      VocabularyEntryState(info: info ?? this.info, index: index ?? this.index, vocabularyID: vocabularyID??this.vocabularyID);
 
   @override
   bool operator ==(Object other) =>

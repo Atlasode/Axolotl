@@ -10,13 +10,17 @@ part 'vocabulary.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class VocabularyInfo implements AbstractInfo{
-  VocabularyInfo();
+  final String vocabulary;
+  final String fromLang;
+  final String toLang;
+
+  const VocabularyInfo(this.vocabulary, this.fromLang, this.toLang);
 
   Map<String, dynamic> toJson() => _$VocabularyInfoToJson(this);
 
   @override
   String getId() {
-    return "";
+    return "$vocabulary";
   }
 
   @override
@@ -25,11 +29,47 @@ class VocabularyInfo implements AbstractInfo{
   }
 }
 
+enum DescriptionType {
+  SENTENCE
+}
+
+@JsonSerializable()
+class Description {
+  final DescriptionType type;
+  final Map<String, dynamic> data;
+
+  const Description(this.type, this.data);
+
+  factory Description.fromJson(Map<String, dynamic> json) => _$DescriptionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DescriptionToJson(this);
+
+}
+
+@JsonSerializable()
+class VocabularyEntry {
+  final String vocabulary;
+  final String fromLang;
+  final String toLang;
+
+  const VocabularyEntry(this.vocabulary, this.fromLang, this.toLang);
+
+  factory VocabularyEntry.fromJson(Map<String, dynamic> json) => _$VocabularyEntryFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VocabularyEntryToJson(this);
+}
+
 @JsonSerializable(explicitToJson: true)
-class Vocabulary {
-  Vocabulary();
+class VocabularyData {
+  final String vocabulary;
+  @JsonKey(name: 'lang_key')
+  final String langKey;
+  @JsonKey(defaultValue: [])
+  final List<Description> descriptions;
 
-  factory Vocabulary.fromJson(Map<String, dynamic> json) => _$VocabularyFromJson(json);
+  const VocabularyData(this.vocabulary, this.langKey, {this.descriptions = const []});
 
-  Map<String, dynamic> toJson() => _$VocabularyToJson(this);
+  factory VocabularyData.fromJson(Map<String, dynamic> json) => _$VocabularyDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VocabularyDataToJson(this);
 }
