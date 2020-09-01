@@ -143,10 +143,29 @@ class _DictionaryPageState extends State<DictionaryPage> {
             builder: (context, data) {
               Iterable<Verb> verbs = data.data;
               if (verbs == null) {
-                return LoadingWidget();
+                return const LoadingWidget();
               }
               return SingleChildScrollView(
-                  child: ExpansionPanelList.radio(
+                  child: Column(
+                    children: [
+                      ...verbs.map((verb){
+                VerbCategory category = verb.category;
+                return ExpansionTile(
+                  title: Text('${category.mood} ${category.tense}'),
+                  subtitle: Text(verb.verbEnglish),
+                  key: keys.putIfAbsent(
+                      category.mood + "_" + category.tense,
+                          () => GlobalKey(
+                          debugLabel:
+                          category.mood + "_" + category.tense)),
+                  children: [
+                    SizedBox(
+                        width: double.infinity,
+                        child: VerbTable(verb))
+                  ],);
+              }
+                      )],
+                  )/*ExpansionPanelList.radio(
                       expandedHeaderPadding: EdgeInsets.only(
                           top: 64.0 - kMinInteractiveDimension,
                           bottom: 48.0 - kMinInteractiveDimension),
@@ -166,42 +185,53 @@ class _DictionaryPageState extends State<DictionaryPage> {
                           ),
                           body: SizedBox(
                               width: double.infinity,
-                              child: DataTable(
-                                columns: [
-                                  DataColumn(label: Text('Pronombre')),
-                                  DataColumn(label: Text('Conjugation')),
-                                ],
-                                rows: [
-                                  DataRow(cells: [
-                                    DataCell(Text('Yo')),
-                                    DataCell(Text(verb.forms[0]))
-                                  ]),
-                                  DataRow(cells: [
-                                    DataCell(Text('Tú')),
-                                    DataCell(Text(verb.forms[1]))
-                                  ]),
-                                  DataRow(cells: [
-                                    DataCell(Text('El / Ella / Usted')),
-                                    DataCell(Text(verb.forms[2]))
-                                  ]),
-                                  DataRow(cells: [
-                                    DataCell(Text('Nosotros / Nosotras')),
-                                    DataCell(Text(verb.forms[3]))
-                                  ]),
-                                  DataRow(cells: [
-                                    DataCell(Text('Vosotros / Vosotras')),
-                                    DataCell(Text(verb.forms[4]))
-                                  ]),
-                                  DataRow(cells: [
-                                    DataCell(Text('Ellos / Ellas/ Ustedes')),
-                                    DataCell(Text(verb.forms[5]))
-                                  ])
-                                ],
-                              )),
+                              child: VerbTable(verb)),
                         );
-                      }).toList()));
+                      }).toList())*/);
             });
       })),
+    );
+  }
+}
+
+class VerbTable extends StatelessWidget {
+  final Verb verb;
+
+  VerbTable(this.verb);
+
+  @override
+  Widget build(BuildContext context) {
+    return DataTable(
+      columns: const [
+        DataColumn(label: Text('Pronombre')),
+        DataColumn(label: Text('Conjugation')),
+      ],
+      rows: [
+        DataRow(cells: [
+          const DataCell(Text('Yo')),
+          DataCell(Text(verb.forms[0]))
+        ]),
+        DataRow(cells: [
+          const DataCell(Text('Tú')),
+          DataCell(Text(verb.forms[1]))
+        ]),
+        DataRow(cells: [
+          const DataCell(Text('El / Ella / Usted')),
+          DataCell(Text(verb.forms[2]))
+        ]),
+        DataRow(cells: [
+          const DataCell(Text('Nosotros / Nosotras')),
+          DataCell(Text(verb.forms[3]))
+        ]),
+        DataRow(cells: [
+          const DataCell(Text('Vosotros / Vosotras')),
+          DataCell(Text(verb.forms[4]))
+        ]),
+        DataRow(cells: [
+          const DataCell(Text('Ellos / Ellas/ Ustedes')),
+          DataCell(Text(verb.forms[5]))
+        ])
+      ],
     );
   }
 }

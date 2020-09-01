@@ -1,3 +1,4 @@
+import 'package:axolotl/dictionary/states.dart';
 import 'package:axolotl/vocabulary/list/vocabulary_list.dart';
 import 'package:axolotl/vocabulary/list/actions.dart';
 import 'package:axolotl/vocabulary/list/reducers.dart';
@@ -30,11 +31,13 @@ AppState vocabularyList(AppState appState, dynamic action){
 @immutable
 class AppState {
   final VocabularyListState vocabularyList;
+  final DictionaryState dictionaryState;
 
-  AppState({this.vocabularyList = const VocabularyListState()});
+  AppState({this.vocabularyList = const VocabularyListState(), this.dictionaryState = const DictionaryState()});
 
-  AppState copyWith({VocabularyListState vocabularyList}) =>
-      AppState(vocabularyList: vocabularyList??this.vocabularyList);
+  AppState copyWith({VocabularyListState vocabularyList, DictionaryState dictionaryState}) =>
+      AppState(vocabularyList: vocabularyList??this.vocabularyList,
+      dictionaryState: dictionaryState??this.dictionaryState);
 
   @override
   bool operator ==(Object other) =>
