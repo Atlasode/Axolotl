@@ -11,13 +11,17 @@ part 'vocabulary.g.dart';
 @JsonSerializable(explicitToJson: true)
 class VocabularyInfo implements AbstractInfo{
   final int vocabulary;
-  final String fromLang;
-  final String toLang;
+  final String firstLang;
+  final String secondLang;
 
-  const VocabularyInfo(this.vocabulary, this.fromLang, this.toLang);
+  const VocabularyInfo(this.vocabulary, this.firstLang, this.secondLang);
 
-  VocabularyDefinition getFrom(){
-    return VocabularyDefinition(vocabulary, fromLang);
+  VocabularyDefinition getFirst(){
+    return VocabularyDefinition(vocabulary, firstLang);
+  }
+
+  VocabularyDefinition getSecond(){
+    return VocabularyDefinition(vocabulary, secondLang);
   }
 
   Map<String, dynamic> toJson() => _$VocabularyInfoToJson(this);
@@ -71,6 +75,9 @@ class VocabularyPair {
   final int vocabulary;
   final VocabularyData first;
   final VocabularyData second;
+
+  const VocabularyPair(this.vocabulary, this.first, this.second);
+
   factory VocabularyPair.fromJson(Map<String, dynamic> json) =>
       _$VocabularyPairFromJson(json);
 

@@ -14,9 +14,10 @@ class SQLVocRepository extends VocabularyRepository {
   }
 
   @override
-  Future<VocabularyPair> getPair(VocabularyInfo info) {
-    info.
-    throw UnimplementedError();
+  Future<VocabularyPair> getPair(VocabularyInfo info) async {
+    VocabularyData first = await getData(info.getFirst());
+    VocabularyData second = await getData(info.getSecond());
+    return VocabularyPair(info.vocabulary, first, second);
   }
 
 }
