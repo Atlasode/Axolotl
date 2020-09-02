@@ -10,11 +10,15 @@ part 'vocabulary.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class VocabularyInfo implements AbstractInfo{
-  final String vocabulary;
+  final int vocabulary;
   final String fromLang;
   final String toLang;
 
   const VocabularyInfo(this.vocabulary, this.fromLang, this.toLang);
+
+  VocabularyDefinition getFrom(){
+    return VocabularyDefinition(vocabulary, fromLang);
+  }
 
   Map<String, dynamic> toJson() => _$VocabularyInfoToJson(this);
 
@@ -47,27 +51,42 @@ class Description {
 }
 
 @JsonSerializable()
-class VocabularyEntry {
-  final String vocabulary;
-  final String fromLang;
-  final String toLang;
+class VocabularyDefinition {
+  @JsonKey(name: 'id')
+  final int vocabulary;
+  @JsonKey(name: 'lang_key')
+  final String langKey;
 
-  const VocabularyEntry(this.vocabulary, this.fromLang, this.toLang);
+  const VocabularyDefinition(this.vocabulary, this.langKey);
 
-  factory VocabularyEntry.fromJson(Map<String, dynamic> json) => _$VocabularyEntryFromJson(json);
+  factory VocabularyDefinition.fromJson(Map<String, dynamic> json) =>
+      _$VocabularyDefinitionFromJson(json);
 
-  Map<String, dynamic> toJson() => _$VocabularyEntryToJson(this);
+  Map<String, dynamic> toJson() => _$VocabularyDefinitionToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class VocabularyPair {
+  @JsonKey(name: 'id')
+  final int vocabulary;
+  final VocabularyData first;
+  final VocabularyData second;
+  factory VocabularyPair.fromJson(Map<String, dynamic> json) =>
+      _$VocabularyPairFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VocabularyPairToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)
 class VocabularyData {
+  final int id;
   final String vocabulary;
   @JsonKey(name: 'lang_key')
   final String langKey;
   @JsonKey(defaultValue: [])
   final List<Description> descriptions;
 
-  const VocabularyData(this.vocabulary, this.langKey, {this.descriptions = const []});
+  const VocabularyData(this.vocabulary, this.langKey, this.id, {this.descriptions = const []});
 
   factory VocabularyData.fromJson(Map<String, dynamic> json) => _$VocabularyDataFromJson(json);
 
