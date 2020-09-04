@@ -50,7 +50,7 @@ abstract class AbstractInfoEntryState<I extends AbstractInfo>
         case InfoType.VERB_RANGE:
           return VerbEntryState(index: index, info: VerbInfoRange(""));
         case InfoType.VOCABULARY:
-          return VocabularyEntryState(index: index, info: VocabularyInfo("", "", ""));
+          return VocabularyEntryState(index: index, info: VocabularyInfo(-1, "", ""));
         default:
           return EmptyInfoEditState.INSTANCE;
       }
