@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:axolotl/adventure/pages.dart';
 import 'package:axolotl/common/app_state.dart';
 import 'package:axolotl/dictionary/pages.dart';
 import 'package:axolotl/vocabulary/list/pages.dart';
@@ -70,9 +71,9 @@ class HomePage extends StatefulWidget {
             bottomBar: VocabularyPage.createBottomView,
             item: BottomNavigationBarItem(
               icon: Icon(Icons.view_module),
-              title: Text('Vocabulary List'),
+              title: Text('Adventure'),
             ),
-            page: VocabularyPage()),
+            page: AdventurePage()),
         PageTab(
           item: BottomNavigationBarItem(
             title: Text('Dictionary'),

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:axolotl/vocabulary/list/vocabulary_list.dart';
+import 'package:axolotl/utils/common_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'verb.g.dart';
@@ -138,6 +139,10 @@ class Verb extends VerbDefinition {
     }
     return json["forms"] ?? [];
   }
+
+  String getForm(Person person){
+    return forms[person.index];
+  }
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -153,6 +158,8 @@ class VerbDefinition {
       _$VerbDefinitionFromJson(json);
 
   Map<String, dynamic> toJson() => _$VerbDefinitionToJson(this);
+
+  String get displayInfinitive => infinitive.capitalize();
 }
 
 
@@ -207,6 +214,8 @@ class VerbCategory {
     }
     return _categoriesByMood;
   }
+
+  String get displayName => '$mood $tense';
 
   VerbCategory copyWith({String mood, String tense, PersonList personList}) =>
       VerbCategory(

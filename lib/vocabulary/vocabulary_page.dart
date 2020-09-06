@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:axolotl/common/common_widgets.dart';
 import 'package:axolotl/utils/common_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -227,6 +228,25 @@ class _VocabularyViewState extends State<VocabularyView> {
                     )
                   ],
                 ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    SizedBox(width: 10,),
+                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    SizedBox(width: 10,),
+                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    SizedBox(width: 10,),
+                    CircleColor(color: Colors.blueAccent[100], circleSize: 20, elevation: 5,),
+                    SizedBox(width: 10,),
+                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    SizedBox(width: 10,),
+                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,)
+                  ],
+                ),
               )
             ],
           )
@@ -301,7 +321,7 @@ class _VocabularyCardState extends State<VocabularyCard> {
                               controller: controllers[i],
                               validator: (value) {
                                 if (value.isEmpty) {
-                                  return 'Please enter a name';
+                                  return 'Please enter a value';
                                 }
                                 return null;
                               },
