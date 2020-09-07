@@ -5,27 +5,38 @@ import 'package:axolotl/vocabulary/vocabulary.dart';
 import 'package:axolotl/vocabulary/vocabulary_page.dart';
 import 'package:flutter/material.dart';
 
+
+enum TaskState {
+  NONE,
+  //This task was not touched by the user
+  UNTOUCHED,
+  //This task was edited by the user, not all fields are filled and it is not validated
+  EDITED,
+  //This task was edited by the user, all fields are filled and it is not validated
+  EDITED_DONE,
+  //This task has been validated and has no mistakes
+  DONE,
+  //This task has been validated and has mistakes
+  FAILED,
+  MISTAKE,
+}
+
 class AdventureState {
-  final TaskList list;
+  final Adventure adventure;
+  final List<TaskState> taskStates;
   final int taskIndex;
   final AdventureSettings settings;
 
-  const AdventureState({this.list, this.taskIndex, this.settings});
+  const AdventureState({this.adventure = const Adventure(), this.taskStates = const [], this.taskIndex = -1, this.settings = AdventureSettings.EASY});
 
-
-  AdventureState copyWith({TaskList list, int taskIndex, AdventureSettings settings}) {
+  AdventureState copyWith({Adventure adventure, List<TaskState> taskStates, int taskIndex, AdventureSettings settings}) {
     return AdventureState(
-      list: list,
+      adventure: adventure,
+      taskStates: taskStates,
       taskIndex: taskIndex,
       settings: settings
     );
   }
-}
-
-enum TaskType {
-  VERB_COLLECTION,
-  VERB_SENTENCE,
-  VOCABULARY_COLLECTION,
 }
 
 class AdventureSettings {
@@ -47,15 +58,21 @@ class AdventureSettings {
   const AdventureSettings({this.editEnabled = false, this.testDirectly = false, this.switchEnabled = true});
 }
 
-class TaskList {
+class Adventure {
   final List<AdventureTask> tasks;
 
-  TaskList({this.tasks});
+  const Adventure({this.tasks});
 
   copyWith(List<AdventureTask> tasks) {
-    return TaskList(tasks: tasks??this.tasks);
+    return Adventure(tasks: tasks??this.tasks);
   }
 
+}
+
+enum TaskType {
+  VERB_COLLECTION,
+  VERB_SENTENCE,
+  VOCABULARY_COLLECTION,
 }
 
 abstract class AdventureTask {

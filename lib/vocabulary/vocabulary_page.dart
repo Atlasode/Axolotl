@@ -167,6 +167,8 @@ class VocabularyView extends StatefulWidget {
 class _VocabularyViewState extends State<VocabularyView> {
   @override
   Widget build(BuildContext context) {
+    Color taskColor = Colors.grey[400].withAlpha(125);
+    Color taskColorSelected = Colors.blueAccent[100].withAlpha(125);
     VocabularyStorage storage = Provider.of<VocabularyStorage>(context);
     List<String> vocabularies = storage.vocabularies;
     int entryPerRowCount = 4;
@@ -177,7 +179,7 @@ class _VocabularyViewState extends State<VocabularyView> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Expanded(
+              /*Expanded(
                   flex: 3,
                   child: LayoutBuilder(
                       builder: (context, constraints)=> Column(
@@ -207,7 +209,7 @@ class _VocabularyViewState extends State<VocabularyView> {
                             )],
                           )),
                         ],
-                      ))),
+                      ))),*/
               Expanded(
                 flex: 2,
                 child: Row(
@@ -234,17 +236,17 @@ class _VocabularyViewState extends State<VocabularyView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
                     SizedBox(width: 10,),
-                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
                     SizedBox(width: 10,),
-                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
                     SizedBox(width: 10,),
-                    CircleColor(color: Colors.blueAccent[100], circleSize: 20, elevation: 5,),
+                    CircleColor(color: taskColorSelected, circleSize: 20, elevation: 5,),
                     SizedBox(width: 10,),
-                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
                     SizedBox(width: 10,),
-                    CircleColor(color: Colors.grey[300], circleSize: 20, elevation: 5,)
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,)
                   ],
                 ),
               )
