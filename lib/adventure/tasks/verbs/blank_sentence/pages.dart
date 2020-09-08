@@ -1,4 +1,5 @@
 import 'package:axolotl/adventure/states.dart';
+import 'package:axolotl/adventure/tasks/verbs/blank_sentence/states.dart';
 import 'package:flutter/material.dart';
 
 class VerbTextArea extends StatefulWidget {

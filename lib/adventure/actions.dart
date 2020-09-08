@@ -1,4 +1,5 @@
 import 'package:axolotl/adventure/states.dart';
+import 'package:axolotl/common/app_state.dart';
 
 class AdventureAction {
   const AdventureAction();
@@ -48,4 +49,9 @@ class AdventureAddTask extends AdventureAction {
   final AdventureTask task;
 
   const AdventureAddTask(this.task);
+}
+
+Future<void> pushDummyAction() async{
+  Adventure instance = await DummyAdventure.get();
+  Redux.store.dispatch(AdventureUpdateInstance(instance));
 }

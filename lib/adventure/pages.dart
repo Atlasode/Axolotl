@@ -1,9 +1,14 @@
+import 'package:axolotl/adventure/actions.dart';
 import 'package:axolotl/adventure/states.dart';
-import 'package:axolotl/adventure/tasks/verbs/blank_sentense/pages.dart';
+import 'package:axolotl/adventure/tasks/verbs/blank_sentence/pages.dart';
+import 'package:axolotl/adventure/tasks/verbs/blank_sentence/states.dart';
 import 'package:axolotl/adventure/tasks/verbs/collection/pages.dart';
+import 'package:axolotl/adventure/tasks/verbs/collection/states.dart';
+import 'package:axolotl/common/app_state.dart';
 import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class AdventurePage extends StatefulWidget {
   final String title;
@@ -21,6 +26,7 @@ class _AdventurePageState extends State<AdventurePage> {
   @override
   void initState() {
     index = 0;
+    pushDummyAction();
     wait();
     super.initState();
   }
@@ -62,7 +68,11 @@ class _AdventurePageState extends State<AdventurePage> {
             elevation: 5.0,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: taskWidgets.isNotEmpty ? taskWidgets[index] : Text('Loading'),
+              child: StoreConnector<AppState, AdventureState>(
+                builder: (context, state) {
+                  return taskWidgets.isNotEmpty ? taskWidgets[index] : Text('Loading');
+                },
+              ),
             ))));
   }
 }

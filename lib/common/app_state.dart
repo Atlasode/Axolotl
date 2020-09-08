@@ -1,3 +1,4 @@
+import 'package:axolotl/adventure/list/states.dart';
 import 'package:axolotl/adventure/reducers.dart';
 import 'package:axolotl/adventure/states.dart';
 import 'package:axolotl/dictionary/states.dart';
@@ -35,17 +36,21 @@ AppState vocabularyList(AppState appState, dynamic action){
 class AppState {
   final VocabularyListState vocabularyList;
   final DictionaryState dictionaryState;
+  final AdventureListState adventureListState;
   final AdventureState adventureState;
 
   AppState({this.vocabularyList = const VocabularyListState(),
     this.dictionaryState = const DictionaryState(),
+    this.adventureListState = const AdventureListState(),
     this.adventureState = const AdventureState()});
 
   AppState copyWith({VocabularyListState vocabularyList,
     DictionaryState dictionaryState,
+    AdventureListState adventureListState,
     AdventureState adventureState}) =>
       AppState(vocabularyList: vocabularyList??this.vocabularyList,
       dictionaryState: dictionaryState??this.dictionaryState,
+      adventureListState: adventureListState ??this.adventureListState,
       adventureState: adventureState??this.adventureState);
 
   @override

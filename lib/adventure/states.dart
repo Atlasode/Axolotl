@@ -1,10 +1,12 @@
+import 'package:axolotl/adventure/tasks/verbs/blank_sentence/states.dart';
 import 'package:axolotl/adventure/tasks/verbs/collection/pages.dart';
+import 'package:axolotl/adventure/tasks/verbs/collection/states.dart';
+import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:axolotl/utils/common_utils.dart';
 import 'package:axolotl/vocabulary/vocabulary.dart';
 import 'package:axolotl/vocabulary/vocabulary_page.dart';
 import 'package:flutter/material.dart';
-
 
 enum TaskState {
   NONE,
@@ -27,25 +29,31 @@ class AdventureState {
   final int taskIndex;
   final AdventureSettings settings;
 
-  const AdventureState({this.adventure = const Adventure(), this.taskStates = const [], this.taskIndex = -1, this.settings = AdventureSettings.EASY});
+  const AdventureState(
+      {this.adventure = const Adventure(),
+      this.taskStates = const [],
+      this.taskIndex = -1,
+      this.settings = AdventureSettings.EASY});
 
-  AdventureState copyWith({Adventure adventure, List<TaskState> taskStates, int taskIndex, AdventureSettings settings}) {
+  AdventureState copyWith(
+      {Adventure adventure,
+      List<TaskState> taskStates,
+      int taskIndex,
+      AdventureSettings settings}) {
     return AdventureState(
-      adventure: adventure,
-      taskStates: taskStates,
-      taskIndex: taskIndex,
-      settings: settings
-    );
+        adventure: adventure,
+        taskStates: taskStates,
+        taskIndex: taskIndex,
+        settings: settings);
   }
 }
 
 class AdventureSettings {
-  static const AdventureSettings EDIT = AdventureSettings(
-    editEnabled: true,
-    switchEnabled: true
-  );
+  static const AdventureSettings EDIT =
+      AdventureSettings(editEnabled: true, switchEnabled: true);
   static const AdventureSettings EASY = AdventureSettings();
-  static const AdventureSettings HARD = AdventureSettings(switchEnabled: false, testDirectly: true);
+  static const AdventureSettings HARD =
+      AdventureSettings(switchEnabled: false, testDirectly: true);
 
   //Allows to edit the adventures
   final bool editEnabled;
@@ -55,7 +63,10 @@ class AdventureSettings {
   //If the user can switch between the tasks in an adventure back and forth
   final bool switchEnabled;
 
-  const AdventureSettings({this.editEnabled = false, this.testDirectly = false, this.switchEnabled = true});
+  const AdventureSettings(
+      {this.editEnabled = false,
+      this.testDirectly = false,
+      this.switchEnabled = true});
 }
 
 class Adventure {
@@ -64,9 +75,60 @@ class Adventure {
   const Adventure({this.tasks});
 
   copyWith(List<AdventureTask> tasks) {
-    return Adventure(tasks: tasks??this.tasks);
+    return Adventure(tasks: tasks ?? this.tasks);
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Adventure &&
+          runtimeType == other.runtimeType &&
+          tasks == other.tasks;
+
+  @override
+  int get hashCode => tasks.hashCode;
+}
+
+class DummyAdventure {
+  static Adventure _instance;
+
+  static Future<Adventure> get() async {
+    if (_instance == null) {
+      _instance = Adventure(tasks: [
+        VerbTextAreaTask(
+          'Test',
+          [
+            TextSection([
+              'Hoy Luis y María',
+              'con nosotros.'
+            ], [
+              VerbBlankText(
+                  await Repositories.verbRepository
+                      .getVerb(VerbDefinition('comer')),
+                  Person.THIRD_PLURAL,
+                  showPronoun: true)
+            ]),
+            TextSection([
+              'Antes',
+              'comer en la cafetería.'
+            ], [
+              VerbBlankText(
+                  await Repositories.verbRepository
+                      .getVerb(VerbDefinition('soler')),
+                  Person.FIRST_SINGULAR,
+                  showPronoun: true,
+                  showTense: true)
+            ])
+          ],
+        ),
+        VerbCollectionTask(
+            "Test",
+            await Repositories.verbRepository.getVerb(VerbDefinition('comer')),
+            Person.values.toSet()),
+      ]);
+    }
+    return _instance;
+  }
 }
 
 enum TaskType {
@@ -86,24 +148,6 @@ abstract class AdventureTask {
   String getDisplayName();
 }
 
-class VerbCollectionTask extends AdventureTask {
-  final Verb verb;
-  final Set<Person> persons;
-
-  VerbCollectionTask(String name, this.verb, this.persons) : super(TaskType.VERB_COLLECTION, name);
-
-  @override
-  Widget build(BuildContext context) {
-    throw UnimplementedError();
-  }
-
-  @override
-  String getDisplayName() {
-    return verb.infinitive.capitalize();
-  }
-
-}
-
 abstract class BlankText {
   String getText();
 
@@ -114,14 +158,15 @@ class TextSection {
   final List<String> texts;
   final List<BlankText> blanks;
 
-  TextSection(this.texts, this.blanks) : assert(texts.length == (blanks.length + 1));
+  TextSection(this.texts, this.blanks)
+      : assert(texts.length == (blanks.length + 1));
 }
 
 abstract class TextAreaTask extends AdventureTask {
   final List<TextSection> sections;
 
-  TextAreaTask(TaskType type, String name, this.sections) :
-        super(type, name);
+  const TextAreaTask(TaskType type, String name, this.sections)
+      : super(type, name);
 }
 
 abstract class VocabularyProvider {
@@ -131,7 +176,8 @@ abstract class VocabularyProvider {
 class VocabularyCollectionTask extends AdventureTask {
   final VocabularyProvider provider;
 
-  VocabularyCollectionTask(String name, this.provider) : super(TaskType.VOCABULARY_COLLECTION, name);
+  VocabularyCollectionTask(String name, this.provider)
+      : super(TaskType.VOCABULARY_COLLECTION, name);
 
   @override
   Widget build(BuildContext context) {
@@ -142,57 +188,4 @@ class VocabularyCollectionTask extends AdventureTask {
   String getDisplayName() {
     return provider.getPairs().join(', ');
   }
-
-}
-
-class VerbBlankText implements BlankText{
-  static const List<String> fieldLabels = [
-    "yo",
-    "tú",
-    "él",
-    "nosotros",
-    "vosotros/as",
-    "ellos"
-  ];
-
-  final Verb verb;
-  final Person person;
-  final bool showPronoun;
-  final bool showTense;
-
-  VerbBlankText(this.verb, this.person, {this.showPronoun = false, this.showTense = false});
-
-  @override
-  String getText() {
-    return verb.getForm(person);
-  }
-
-  @override
-  String getHintText() {
-    StringBuffer buffer = StringBuffer();
-    buffer.write(verb.infinitive);
-    if(showPronoun){
-      buffer.write('/${fieldLabels[person.index]}');
-    }
-    if(showTense){
-      buffer.write('/${verb.category.displayName.toLowerCase()}');
-    }
-    return buffer.toString();
-  }
-}
-
-class VerbTextAreaTask extends TextAreaTask {
-
-  VerbTextAreaTask(String name, List<TextSection> sections) :super(TaskType.VERB_SENTENCE, name, sections);
-
-  @override
-  Widget build(BuildContext context) {
-    throw UnimplementedError();
-  }
-
-  @override
-  String getDisplayName() {
-    throw UnimplementedError();
-  }
-
 }

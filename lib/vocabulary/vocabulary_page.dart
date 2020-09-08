@@ -1,11 +1,14 @@
 import 'dart:math';
 
+import 'package:axolotl/adventure/states.dart';
+import 'package:axolotl/common/app_state.dart';
 import 'package:axolotl/common/common_widgets.dart';
 import 'package:axolotl/utils/common_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
@@ -36,7 +39,7 @@ class VocabularyPage extends StatefulWidget {
 
   static Widget createBottomView(BuildContext context) {
     return SizedBox(
-      height: 170,
+      height: 120,
       child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: VocabularyView()
@@ -172,14 +175,70 @@ class _VocabularyViewState extends State<VocabularyView> {
     VocabularyStorage storage = Provider.of<VocabularyStorage>(context);
     List<String> vocabularies = storage.vocabularies;
     int entryPerRowCount = 4;
+    int dividerWidth = 20;
     int rowCount = (vocabularies.length / entryPerRowCount).ceil();
-    return Card(
+    int currentIndex = 0;
+    int tasksCount = 1;
+    return StoreConnector<AppState, AdventureState>(
+      converter: (store)=>store.state.adventureState,
+        builder: (context, state)=>Card(
       elevation: 5.0,
       child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              /*Expanded(
+              Expanded(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      iconSize: 28,
+                      onPressed: (){
+
+                      },
+                    ),
+                    Text(
+                        "$currentIndex / $tasksCount",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_forward),
+                      iconSize: 28,
+                      onPressed: (){
+
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
+                    SizedBox(width: 20,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
+                    SizedBox(width: 20,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
+                    SizedBox(width: 20,),
+                    CircleColor(color: taskColorSelected, circleSize: 20, elevation: 5,),
+                    SizedBox(width: 20,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
+                    SizedBox(width: 20,),
+                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,)
+                  ],
+                ),
+              )
+            ],
+          )
+      ),
+    ));
+  }
+
+/*Expanded(
                   flex: 3,
                   child: LayoutBuilder(
                       builder: (context, constraints)=> Column(
@@ -210,52 +269,6 @@ class _VocabularyViewState extends State<VocabularyView> {
                           )),
                         ],
                       ))),*/
-              Expanded(
-                flex: 2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    OutlineButton(
-                      child: Text(
-                          "Last"
-                      ),
-                    ),
-                    Text(
-                        "0 / 1"
-                    ),
-                    OutlineButton(
-                      child: Text(
-                          "Next"
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 10,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 10,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 10,),
-                    CircleColor(color: taskColorSelected, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 10,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 10,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,)
-                  ],
-                ),
-              )
-            ],
-          )
-      ),
-    );
-  }
-
 }
 
 class VocabularyCard extends StatefulWidget {
