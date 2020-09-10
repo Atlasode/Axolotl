@@ -1,3 +1,4 @@
+import 'package:axolotl/adventure/list/reducers.dart';
 import 'package:axolotl/adventure/list/states.dart';
 import 'package:axolotl/adventure/reducers.dart';
 import 'package:axolotl/adventure/states.dart';
@@ -27,8 +28,9 @@ final Reducer<AppState> appReducer = combineReducers([
 
 AppState vocabularyList(AppState appState, dynamic action){
   return appState.copyWith(
-    vocabularyList: listReducer(appState.vocabularyList, action),
-    adventureState: adventureReducer(appState.adventureState, action)
+    vocabularyList: vocabularyListReducer(appState.vocabularyList, action),
+    adventureState: adventureReducer(appState.adventureState, action),
+    adventureListState: adventureListReducer(appState.adventureListState, action)
   );
 }
 

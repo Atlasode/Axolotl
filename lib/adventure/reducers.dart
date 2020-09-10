@@ -9,6 +9,7 @@ final Reducer<AdventureState> adventureReducer = combineReducers([
   new TypedReducer<AdventureState, AdventureRemoveTask>(removeTask),
   new TypedReducer<AdventureState, AdventureAddTask>(addTask),
   new TypedReducer<AdventureState, AdventureUpdateTask>(updateTask),
+  new TypedReducer<AdventureState, AdventureOpen>(openAdventure),
 ]);
 
 AdventureState setInstance(AdventureState state, AdventureUpdateInstance action) {
@@ -53,7 +54,7 @@ AdventureState removeTask(AdventureState state, AdventureRemoveTask action) {
   List<TaskState> newStates = List.of(state.taskStates);
   newStates.removeAt(action.index);
   return state.copyWith(
-    adventure: state.adventure.copyWith(newList.toList(growable: false)),
+    adventure: state.adventure.copyWith(tasks: newList.toList(growable: false)),
       taskStates: newStates.toList(growable: false)
   );
 }
@@ -64,7 +65,7 @@ AdventureState addTask(AdventureState state, AdventureAddTask action) {
   List<TaskState> newStates = List.of(state.taskStates);
   newStates.add(TaskState.UNTOUCHED);
   return state.copyWith(
-      adventure: state.adventure.copyWith(newList.toList(growable: false)),
+      adventure: state.adventure.copyWith(tasks: newList.toList(growable: false)),
       taskStates: newStates.toList(growable: false)
   );
 }
@@ -75,6 +76,10 @@ AdventureState updateTask(AdventureState state, AdventureUpdateTask action) {
   List<TaskState> newStates = List.of(state.taskStates);
   newStates[action.index] = TaskState.EDITED;
   return state.copyWith(
-      adventure: state.adventure.copyWith(newList.toList(growable: false))
+      adventure: state.adventure.copyWith(tasks: newList.toList(growable: false))
   );
+}
+
+AdventureState openAdventure(AdventureState state, AdventureOpen action) {
+  return AdventureState.open(action.adventure, action.index);
 }

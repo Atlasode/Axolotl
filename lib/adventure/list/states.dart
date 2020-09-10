@@ -7,11 +7,12 @@ class AdventureListState {
   final List<Adventure> adventures;
   final LoadingState loadingState;
 
-  const AdventureListState({this.adventures, this.loadingState = LoadingState.NONE});
+  const AdventureListState({this.adventures = const [], this.loadingState = LoadingState.NONE});
 
-  AdventureListState copyWith({List<Adventure> adventures}){
+  AdventureListState copyWith({List<Adventure> adventures, LoadingState loadingState}){
     return AdventureListState(
-      adventures: adventures??this.adventures
+      adventures: adventures??this.adventures,
+      loadingState: loadingState??this.loadingState
     );
   }
 

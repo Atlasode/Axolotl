@@ -28,20 +28,34 @@ class AdventureState {
   final List<TaskState> taskStates;
   final int taskIndex;
   final AdventureSettings settings;
+  final int index;
 
   const AdventureState(
       {this.adventure = const Adventure(),
+        this.index = -1,
       this.taskStates = const [],
       this.taskIndex = -1,
       this.settings = AdventureSettings.EASY});
 
+  factory AdventureState.open(Adventure adventure, int index, {AdventureSettings settings}) {
+    return AdventureState(
+      adventure: adventure,
+      index: index,
+      settings: settings,
+      taskIndex: 0,
+      taskStates: adventure.tasks.map((e) => TaskState.UNTOUCHED)
+    );
+  }
+
   AdventureState copyWith(
       {Adventure adventure,
+        int index,
       List<TaskState> taskStates,
       int taskIndex,
       AdventureSettings settings}) {
     return AdventureState(
         adventure: adventure,
+        index: index,
         taskStates: taskStates,
         taskIndex: taskIndex,
         settings: settings);
@@ -70,12 +84,20 @@ class AdventureSettings {
 }
 
 class Adventure {
+  // ignore: non_constant_identifier_names
+  static const EMPTY = Adventure(name: "", displayName: "", tasks: const []);
+
   final List<AdventureTask> tasks;
+  final String name;
+  final String displayName;
 
-  const Adventure({this.tasks});
+  const Adventure({this.tasks, this.name, this.displayName,});
 
-  copyWith(List<AdventureTask> tasks) {
-    return Adventure(tasks: tasks ?? this.tasks);
+  copyWith({List<AdventureTask> tasks, String name, String displayName}) {
+    return Adventure(tasks: tasks ?? this.tasks,
+    name: name??this.name,
+      displayName: displayName??this.displayName
+    );
   }
 
   @override
@@ -125,7 +147,7 @@ class DummyAdventure {
             "Test",
             await Repositories.verbRepository.getVerb(VerbDefinition('comer')),
             Person.values.toSet()),
-      ]);
+      ], displayName: 'Tim Test', name: 'tim_test');
     }
     return _instance;
   }

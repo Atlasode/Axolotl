@@ -9,7 +9,7 @@ import 'package:axolotl/vocabulary/list/actions.dart';
 import 'package:axolotl/vocabulary/list/states.dart';
 import 'package:redux/redux.dart';
 
-final Reducer<VocabularyListState> listReducer = combineReducers([
+final Reducer<VocabularyListState> vocabularyListReducer = combineReducers([
   new TypedReducer<VocabularyListState, VocabularyListLoaded>(loadList),
   new TypedReducer<VocabularyListState, VocabularyListLoading>(loadingState),
   new TypedReducer<VocabularyListState, VocabularyListOpen>(openList),

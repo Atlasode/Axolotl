@@ -51,7 +51,9 @@ class AdventureAddTask extends AdventureAction {
   const AdventureAddTask(this.task);
 }
 
-Future<void> pushDummyAction() async{
-  Adventure instance = await DummyAdventure.get();
-  Redux.store.dispatch(AdventureUpdateInstance(instance));
+class AdventureOpen extends AdventureAction{
+  final Adventure adventure;
+  final int index;
+
+  AdventureOpen(this.adventure, this.index);
 }

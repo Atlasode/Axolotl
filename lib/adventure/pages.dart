@@ -26,7 +26,6 @@ class _AdventurePageState extends State<AdventurePage> {
   @override
   void initState() {
     index = 0;
-    pushDummyAction();
     wait();
     super.initState();
   }
@@ -69,6 +68,7 @@ class _AdventurePageState extends State<AdventurePage> {
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: StoreConnector<AppState, AdventureState>(
+                converter: (store)=>store.state.adventureState,
                 builder: (context, state) {
                   return taskWidgets.isNotEmpty ? taskWidgets[index] : Text('Loading');
                 },
