@@ -45,13 +45,6 @@ class AdventureListLoading extends AdventureListAction {
   const AdventureListLoading(this.loadingState);
 }
 
-class AdventureListOpen extends AdventureListAction{
-  final Adventure adventure;
-  final int index;
-  final AdventureSettings settings;
-
-  AdventureListOpen(this.adventure, this.index, {this.settings=AdventureSettings.EASY });
-}
 
 Future<void> fetchAdventureListsAction(bool dummyList) async{
   Redux.store.dispatch(AdventureListLoading(LoadingState.LOADING));

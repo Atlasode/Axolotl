@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:axolotl/utils/common_utils.dart';
 import 'package:axolotl/adventure/tasks/verbs/collection/pages.dart';
 
-class VerbCollectionTask extends AdventureTask {
+class VerbCollectionTask extends AdventureTask<String> {
   final Verb verb;
   final Set<Person> persons;
 
@@ -18,6 +18,11 @@ class VerbCollectionTask extends AdventureTask {
   @override
   String getDisplayName() {
     return verb.infinitive.capitalize();
+  }
+
+  @override
+  List<String> createData() {
+    return persons.map((e) => verb.getForm(e)).toList();
   }
 
 }

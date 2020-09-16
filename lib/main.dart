@@ -69,12 +69,12 @@ class HomePage extends StatefulWidget {
             ),
             page: VocabularyListPage()),
         PageTab(
-            bottomBar: VocabularyPage.createBottomView,
+            bottomBar: AdventurePage.createBottomView,
             item: BottomNavigationBarItem(
               icon: Icon(Icons.view_module),
               title: Text('Adventure'),
             ),
-            page: AdventureListPage()),
+            page: AdventurePage()),
         PageTab(
           item: BottomNavigationBarItem(
             title: Text('Dictionary'),

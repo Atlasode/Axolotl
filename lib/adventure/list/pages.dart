@@ -1,3 +1,4 @@
+import 'package:axolotl/adventure/actions.dart';
 import 'package:axolotl/adventure/list/actions.dart';
 import 'package:axolotl/adventure/list/states.dart';
 import 'package:axolotl/adventure/pages.dart';
@@ -47,7 +48,7 @@ class AdventureListPageState extends State<AdventureListPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Redux.dispatch(AdventureListOpen(Adventure.EMPTY, null, settings: AdventureSettings.EDIT));
+          Redux.dispatch(AdventureOpen(Adventure.EMPTY, null, settings: AdventureSettings.EDIT));
           FlutterUtils.pushPage(
               context: context,
               builder: (context) => AdventurePage());
@@ -99,19 +100,21 @@ class AdventureListView extends StatelessWidget {
                           RaisedButton(
                             child: Text("Open"),
                             onPressed: () {
-                              Redux.dispatch(AdventureListOpen(list, index));
-                              FlutterUtils.pushPage(
+                              Redux.dispatch(AdventureOpen(list, index));
+                              Navigator.pop(context);
+                              /*FlutterUtils.pushPage(
                                   context: context,
-                                  builder: (context) => AdventurePage());
+                                  builder: (context) => AdventurePage());*/
                             },
                           ),
                           RaisedButton(
                             child: Text("Edit"),
                             onPressed: () {
-                              Redux.dispatch(AdventureListOpen(list, index));
-                              FlutterUtils.pushPage(
+                              Redux.dispatch(AdventureOpen(list, index));
+                              /*FlutterUtils.pushPage(
                                   context: context,
-                                  builder: (context) => AdventurePage());
+                                  builder: (context) => AdventurePage());*/
+                              Navigator.pop(context);
                             },
                           ),
                           RaisedButton(

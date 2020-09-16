@@ -37,16 +37,6 @@ class VocabularyStorage {
 class VocabularyPage extends StatefulWidget {
   final String title;
 
-  static Widget createBottomView(BuildContext context) {
-    return SizedBox(
-      height: 120,
-      child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: VocabularyView()
-      ),
-    );
-  }
-
   static Provider createProvider() {
     return Provider<VocabularyStorage>(
       create: (context)=> VocabularyStorage(),
@@ -156,119 +146,6 @@ class _VocabularyPageState extends State<VocabularyPage>
       ),
     );
   }
-}
-
-class VocabularyView extends StatefulWidget {
-
-  const VocabularyView({Key key}) : super(key: key);
-
-  @override
-  _VocabularyViewState createState() => _VocabularyViewState();
-
-}
-
-class _VocabularyViewState extends State<VocabularyView> {
-  @override
-  Widget build(BuildContext context) {
-    Color taskColor = Colors.grey[400].withAlpha(125);
-    Color taskColorSelected = Colors.blueAccent[100].withAlpha(125);
-    VocabularyStorage storage = Provider.of<VocabularyStorage>(context);
-    List<String> vocabularies = storage.vocabularies;
-    int entryPerRowCount = 4;
-    int dividerWidth = 20;
-    int rowCount = (vocabularies.length / entryPerRowCount).ceil();
-    int currentIndex = 0;
-    int tasksCount = 1;
-    return StoreConnector<AppState, AdventureState>(
-      converter: (store)=>store.state.adventureState,
-        builder: (context, state)=>Card(
-      elevation: 5.0,
-      child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      iconSize: 28,
-                      onPressed: (){
-
-                      },
-                    ),
-                    Text(
-                        "$currentIndex / $tasksCount",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.arrow_forward),
-                      iconSize: 28,
-                      onPressed: (){
-
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 20,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 20,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 20,),
-                    CircleColor(color: taskColorSelected, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 20,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,),
-                    SizedBox(width: 20,),
-                    CircleColor(color: taskColor, circleSize: 20, elevation: 5,)
-                  ],
-                ),
-              )
-            ],
-          )
-      ),
-    ));
-  }
-
-/*Expanded(
-                  flex: 3,
-                  child: LayoutBuilder(
-                      builder: (context, constraints)=> Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ...List.generate(rowCount, (rowIndex) => Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              ...List.generate((vocabularies.length - rowIndex * entryPerRowCount) >= entryPerRowCount ? entryPerRowCount : vocabularies.length % entryPerRowCount, (index) =>
-                                ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                        maxWidth: constraints.maxWidth / 5,
-                                        maxHeight: constraints.maxHeight / 2.5
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all()
-                                      ),
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Center(child: Text(
-                                        vocabularies[rowIndex * entryPerRowCount + index].capitalize(),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      )),
-                                    ))
-                            )],
-                          )),
-                        ],
-                      ))),*/
 }
 
 class VocabularyCard extends StatefulWidget {

@@ -8,7 +8,7 @@ import 'package:axolotl/vocabulary/vocabulary.dart';
 import 'package:axolotl/vocabulary/vocabulary_page.dart';
 import 'package:flutter/material.dart';
 
-enum TaskState {
+enum TaskDifference {
   NONE,
   //This task was not touched by the user
   UNTOUCHED,
@@ -18,9 +18,29 @@ enum TaskState {
   EDITED_DONE,
   //This task has been validated and has no mistakes
   DONE,
-  //This task has been validated and has mistakes
+  //This task has been validated, has mistakes and has hard validation settings
   FAILED,
+  //This task has been validated, has mistakes and loose validation settings
   MISTAKE,
+}
+
+Color getDiffColor(TaskDifference diff){
+  switch(diff){
+    case TaskDifference.DONE:
+      return Colors.green;
+    case TaskDifference.UNTOUCHED:
+      return Colors.blueGrey;
+    case TaskDifference.EDITED:
+      return Colors.deepOrangeAccent;
+    case TaskDifference.EDITED_DONE:
+      return Colors.yellow;
+    case TaskDifference.FAILED:
+      return Colors.red[800];
+    case TaskDifference.MISTAKE:
+      return Colors.redAccent[200];
+    default:
+      return Colors.grey[400].withAlpha(125);
+  }
 }
 
 class AdventureState {
@@ -28,37 +48,57 @@ class AdventureState {
   final List<TaskState> taskStates;
   final int taskIndex;
   final AdventureSettings settings;
-  final int index;
+  final int listIndex;
 
   const AdventureState(
-      {this.adventure = const Adventure(),
-        this.index = -1,
+      {this.adventure = Adventure.EMPTY,
+        this.listIndex = -1,
       this.taskStates = const [],
       this.taskIndex = -1,
       this.settings = AdventureSettings.EASY});
 
-  factory AdventureState.open(Adventure adventure, int index, {AdventureSettings settings}) {
+  factory AdventureState.open(Adventure adventure, int listIndex, {AdventureSettings settings}) {
     return AdventureState(
       adventure: adventure,
-      index: index,
+      listIndex: listIndex,
       settings: settings,
       taskIndex: 0,
-      taskStates: adventure.tasks.map((e) => TaskState.UNTOUCHED)
+      taskStates: adventure.tasks.map((task) => TaskState.task(task)).toList()
     );
+  }
+
+  List<bool> validate(){
+    return taskStates[taskIndex].validate(adventure.tasks[taskIndex]);
+  }
+
+  bool validateSingle(int index){
+    return taskStates[taskIndex].validateSingle(adventure.tasks[taskIndex], index);
+  }
+
+  bool get hasNext {
+    return taskIndex < taskStates.length - 1;
+  }
+
+  bool get hasPrevious {
+    return taskIndex > 0 ;
+  }
+
+  AdventureState close() {
+    return AdventureState(settings: settings);
   }
 
   AdventureState copyWith(
       {Adventure adventure,
-        int index,
+        int listIndex,
       List<TaskState> taskStates,
       int taskIndex,
       AdventureSettings settings}) {
     return AdventureState(
-        adventure: adventure,
-        index: index,
-        taskStates: taskStates,
-        taskIndex: taskIndex,
-        settings: settings);
+        adventure: adventure??this.adventure,
+        listIndex: listIndex??this.listIndex,
+        taskStates: taskStates??this.taskStates,
+        taskIndex: taskIndex??this.taskIndex,
+        settings: settings??this.settings);
   }
 }
 
@@ -109,6 +149,8 @@ class Adventure {
 
   @override
   int get hashCode => tasks.hashCode;
+
+  bool get isEmpty => name.isEmpty;
 }
 
 class DummyAdventure {
@@ -159,7 +201,7 @@ enum TaskType {
   VOCABULARY_COLLECTION,
 }
 
-abstract class AdventureTask {
+abstract class AdventureTask<T> {
   final TaskType type;
   final String name;
 
@@ -167,7 +209,60 @@ abstract class AdventureTask {
 
   Widget build(BuildContext context);
 
+  List<T> createData() {
+    //TODO: make abstract
+    return [];
+  }
+
+  List<bool> validate(List<T> validData, List<T> testData) {
+    return List.generate(validData.length, (index) => index).map((index) => validData[index] == testData[index]);
+  }
+
+  bool validateSingle(List<T> validData, List<T> testData, int index) {
+    return validData[index] == testData[index];
+  }
+
   String getDisplayName();
+}
+
+class TaskState {
+  final List validValues;
+  final List currentValues;
+  final TaskDifference diff;
+
+  const TaskState._(this.validValues, this.currentValues, this.diff);
+
+  factory TaskState.task(AdventureTask task){
+    return TaskState(validValues: task.createData());
+  }
+
+  factory TaskState({List validValues  = const [], List currentValues = const [], TaskDifference diff = TaskDifference.UNTOUCHED}) {
+    List values = validValues;
+    List current = currentValues;
+    if(current.length <  validValues.length){
+      current = List.generate(validValues.length, (index) => null);
+      List.copyRange(current, 0, currentValues);
+    }
+    return TaskState._(values,
+        current,
+        diff??diff
+    );
+  }
+
+  TaskState copyWith({List validValues, List currentValues, TaskDifference diff}){
+    return TaskState(validValues: validValues??this.validValues,
+        currentValues: currentValues??this.currentValues,
+        diff: diff??this.diff
+    );
+  }
+
+  List<bool> validate(AdventureTask task) {
+    return task.validate(validValues, currentValues);
+  }
+
+  bool validateSingle(AdventureTask task, int index) {
+    return task.validateSingle(validValues, currentValues, index);
+  }
 }
 
 abstract class BlankText {
@@ -184,11 +279,16 @@ class TextSection {
       : assert(texts.length == (blanks.length + 1));
 }
 
-abstract class TextAreaTask extends AdventureTask {
+abstract class TextAreaTask extends AdventureTask<String> {
   final List<TextSection> sections;
 
   const TextAreaTask(TaskType type, String name, this.sections)
       : super(type, name);
+
+  @override
+  List<String> createData() {
+    return sections.map((e) => e.blanks.map((e) => e.getText())).reduce((value, element) => [...value, ...element]).toList();
+  }
 }
 
 abstract class VocabularyProvider {

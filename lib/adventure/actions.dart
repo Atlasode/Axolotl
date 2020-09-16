@@ -25,10 +25,11 @@ class AdventureUpdateSettings extends AdventureAction {
 }
 
 class AdventureUpdateTaskState extends AdventureAction {
-  final TaskState state;
+  final TaskDifference diff;
+  final List<dynamic> values;
   final int index;
 
-  AdventureUpdateTaskState(this.state, this.index);
+  AdventureUpdateTaskState(this.diff, this.values, this.index);
 
 }
 
@@ -51,9 +52,15 @@ class AdventureAddTask extends AdventureAction {
   const AdventureAddTask(this.task);
 }
 
+class AdventureClose extends AdventureAction{
+
+  AdventureClose();
+}
+
 class AdventureOpen extends AdventureAction{
   final Adventure adventure;
   final int index;
+  final AdventureSettings settings;
 
-  AdventureOpen(this.adventure, this.index);
+  AdventureOpen(this.adventure, this.index, {this.settings = AdventureSettings.EASY});
 }

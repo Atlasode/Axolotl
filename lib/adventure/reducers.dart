@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:axolotl/adventure/actions.dart';
 import 'package:axolotl/adventure/states.dart';
 import 'package:redux/redux.dart';
@@ -10,20 +12,15 @@ final Reducer<AdventureState> adventureReducer = combineReducers([
   new TypedReducer<AdventureState, AdventureAddTask>(addTask),
   new TypedReducer<AdventureState, AdventureUpdateTask>(updateTask),
   new TypedReducer<AdventureState, AdventureOpen>(openAdventure),
+  new TypedReducer<AdventureState, AdventureClose>(closeAdventure),
 ]);
 
 AdventureState setInstance(AdventureState state, AdventureUpdateInstance action) {
-  List<TaskState> newStates = List.of(state.taskStates);
-  if(newStates.length > action.instance.tasks.length){
-    newStates.removeRange(action.instance.tasks.length, newStates.length);
-  }else if(newStates.length < action.instance.tasks.length){
-    while(newStates.length < action.instance.tasks.length) {
-      newStates.add(TaskState.UNTOUCHED);
-    }
-  }
   return state.copyWith(
       adventure: action.instance,
-    taskStates: newStates.toList(growable: false)
+    taskStates: action.instance.tasks
+        .map((task) => TaskState.task(task))
+        .toList(growable: false)
   );
 }
 
@@ -41,7 +38,10 @@ AdventureState setSettings(AdventureState state, AdventureUpdateSettings action)
 
 AdventureState setState(AdventureState state, AdventureUpdateTaskState action){
   List<TaskState> newList = List.of(state.taskStates);
-  newList[action.index] = action.state;
+  newList[action.index] = newList[action.index].copyWith(
+    diff: action.diff,
+    currentValues: action.values
+  );
   return state.copyWith(
       taskStates: newList.toList(growable: false)
   );
@@ -55,7 +55,8 @@ AdventureState removeTask(AdventureState state, AdventureRemoveTask action) {
   newStates.removeAt(action.index);
   return state.copyWith(
     adventure: state.adventure.copyWith(tasks: newList.toList(growable: false)),
-      taskStates: newStates.toList(growable: false)
+      taskStates: newStates.toList(growable: false),
+    listIndex: min(state.listIndex, newList.length - 1)
   );
 }
 
@@ -63,7 +64,7 @@ AdventureState addTask(AdventureState state, AdventureAddTask action) {
   List<AdventureTask> newList = List.of(state.adventure.tasks);
   newList.add(action.task);
   List<TaskState> newStates = List.of(state.taskStates);
-  newStates.add(TaskState.UNTOUCHED);
+  newStates.add(TaskState.task(action.task));
   return state.copyWith(
       adventure: state.adventure.copyWith(tasks: newList.toList(growable: false)),
       taskStates: newStates.toList(growable: false)
@@ -74,12 +75,16 @@ AdventureState updateTask(AdventureState state, AdventureUpdateTask action) {
   List<AdventureTask> newList = List.of(state.adventure.tasks);
   newList[action.index] = action.task;
   List<TaskState> newStates = List.of(state.taskStates);
-  newStates[action.index] = TaskState.EDITED;
+  newStates[action.index] = TaskState.task(action.task);
   return state.copyWith(
       adventure: state.adventure.copyWith(tasks: newList.toList(growable: false))
   );
 }
 
 AdventureState openAdventure(AdventureState state, AdventureOpen action) {
-  return AdventureState.open(action.adventure, action.index);
+  return AdventureState.open(action.adventure, action.index, settings: action.settings);
+}
+
+AdventureState closeAdventure(AdventureState state, AdventureClose action) {
+  return state.close();
 }

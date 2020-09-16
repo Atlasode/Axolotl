@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 class VerbTextArea extends StatefulWidget {
   final VerbTextAreaTask task;
+  final TaskState taskState;
 
-  const VerbTextArea({Key key, this.task}) : super(key: key);
+  const VerbTextArea({Key key, this.task, this.taskState}) : super(key: key);
 
   @override
   VerbTextAreaState createState() => VerbTextAreaState();
@@ -17,6 +18,7 @@ class VerbTextAreaState extends State<VerbTextArea> {
   Widget build(BuildContext context) {
     TextStyle textStyle = DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: 16));
     TextStyle fieldStyle = textStyle.merge(TextStyle(fontWeight: FontWeight.bold));
+    int valueIndex = 0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       ListTile(
         title: Text('Presente Examples', style: Theme.of(context).textTheme.headline5,),
@@ -26,7 +28,9 @@ class VerbTextAreaState extends State<VerbTextArea> {
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          ...widget.task.sections.map((section) {
+          ...List.generate(widget.task.sections.length, (sectionIndex) {
+            int fieldIndex = valueIndex++;
+            TextSection section = widget.task.sections[sectionIndex];
             List<InlineSpan> spans = [];
             for (int i = 0; i < (section.texts.length / 2).floor(); i++) {
               double width = _textSize(section.blanks[i].getText(), fieldStyle).width;
@@ -35,7 +39,9 @@ class VerbTextAreaState extends State<VerbTextArea> {
                       '${section.texts[i * 2]} (${section.blanks[i].getHintText()}) '));
               spans.add(WidgetSpan(
                   child: Container(
-                      width: width * 2, height: 20, child: TextField(style: fieldStyle, enableInteractiveSelection: false))));
+                      width: width * 2, height: 20, child: TextField(style: fieldStyle, enableInteractiveSelection: false, onChanged:(value){
+                    widget.taskState.currentValues[fieldIndex] = value;
+                  },controller: TextEditingController(text: widget.taskState.currentValues[fieldIndex]),))));
               spans.add(TextSpan(text: section.texts[i * 2 + 1]));
             }
             return <Widget>[
