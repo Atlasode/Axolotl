@@ -1,5 +1,7 @@
+import 'package:axolotl/adventure/actions.dart';
 import 'package:axolotl/adventure/states.dart';
 import 'package:axolotl/adventure/tasks/verbs/blank_sentence/states.dart';
+import 'package:axolotl/common/app_state.dart';
 import 'package:flutter/material.dart';
 
 class VerbTextArea extends StatefulWidget {
@@ -13,6 +15,18 @@ class VerbTextArea extends StatefulWidget {
 }
 
 class VerbTextAreaState extends State<VerbTextArea> {
+
+  final List<TextEditingController> controllers = [];
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    for(int index = 0; index < widget.task.sections.length;index++) {
+      controllers.add(TextEditingController(text: widget.taskState.group.fields[index].current));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +43,6 @@ class VerbTextAreaState extends State<VerbTextArea> {
         crossAxisAlignment: CrossAxisAlignment.start,
             children: [
           ...List.generate(widget.task.sections.length, (sectionIndex) {
-            int fieldIndex = valueIndex++;
             TextSection section = widget.task.sections[sectionIndex];
             List<InlineSpan> spans = [];
             for (int i = 0; i < (section.texts.length / 2).floor(); i++) {
@@ -40,8 +53,9 @@ class VerbTextAreaState extends State<VerbTextArea> {
               spans.add(WidgetSpan(
                   child: Container(
                       width: width * 2, height: 20, child: TextField(style: fieldStyle, enableInteractiveSelection: false, onChanged:(value){
-                    widget.taskState.currentValues[fieldIndex] = value;
-                  },controller: TextEditingController(text: widget.taskState.currentValues[fieldIndex]),))));
+                        Redux.dispatch(AdventureUpdateField(value, sectionIndex));
+                    //widget.taskState.currentValues[sectionIndex] = value;
+                  },controller: controllers[sectionIndex],))));
               spans.add(TextSpan(text: section.texts[i * 2 + 1]));
             }
             return <Widget>[

@@ -24,6 +24,14 @@ class AdventureUpdateSettings extends AdventureAction {
   AdventureUpdateSettings(this.settings);
 }
 
+class AdventureUpdateField extends AdventureAction {
+  final dynamic value;
+  final int taskIndex;
+  final int fieldIndex;
+
+  AdventureUpdateField(this.value, this.fieldIndex, {this.taskIndex});
+}
+
 class AdventureUpdateTaskState extends AdventureAction {
   final TaskDifference diff;
   final List<dynamic> values;

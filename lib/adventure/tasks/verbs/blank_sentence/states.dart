@@ -1,18 +1,11 @@
 import 'package:axolotl/adventure/states.dart';
 import 'package:axolotl/adventure/tasks/verbs/blank_sentence/pages.dart';
+import 'package:axolotl/constants.dart';
 import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:flutter/material.dart';
 
 class VerbBlankText implements BlankText{
-  static const List<String> fieldLabels = [
-    "yo",
-    "tú",
-    "él",
-    "nosotros",
-    "vosotros/as",
-    "ellos"
-  ];
 
   final Verb verb;
   final Person person;
@@ -31,7 +24,7 @@ class VerbBlankText implements BlankText{
     StringBuffer buffer = StringBuffer();
     buffer.write(verb.infinitive);
     if(showPronoun){
-      buffer.write('/${fieldLabels[person.index]}');
+      buffer.write('/${conjugationPronouns[person.index]}');
     }
     if(showTense){
       buffer.write('/${verb.category.displayName.toLowerCase()}');
@@ -45,8 +38,8 @@ class VerbTextAreaTask extends TextAreaTask {
   const VerbTextAreaTask(String name, List<TextSection> sections) :super(TaskType.VERB_SENTENCE, name, sections);
 
   @override
-  Widget build(BuildContext context) {
-    return VerbTextArea(task: this,);
+  Widget build(BuildContext context, TaskState taskState) {
+    return VerbTextArea(task: this, taskState: taskState,);
   }
 
   @override

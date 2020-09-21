@@ -11,7 +11,7 @@ class VerbCollectionTask extends AdventureTask<String> {
   VerbCollectionTask(String name, this.verb, this.persons) : super(TaskType.VERB_COLLECTION, name);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, TaskState taskState) {
     return VerbCollection(task: this);
   }
 

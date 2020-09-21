@@ -207,61 +207,113 @@ abstract class AdventureTask<T> {
 
   const AdventureTask(this.type, this.name);
 
-  Widget build(BuildContext context);
+  Widget build(BuildContext context, TaskState taskState);
 
   List<T> createData() {
     //TODO: make abstract
     return [];
   }
 
-  List<bool> validate(List<T> validData, List<T> testData) {
-    return List.generate(validData.length, (index) => index).map((index) => validData[index] == testData[index]);
+  List<bool> validate(TaskDataGroup group, {Comparator comparator}) {
+    return group.fields.map((element) => element.equal(comparator: comparator)).toList();
   }
 
-  bool validateSingle(List<T> validData, List<T> testData, int index) {
-    return validData[index] == testData[index];
+  bool validateSingle(TaskDataGroup group, int index, {Comparator comparator}) {
+    assert(group.fields.length < index);
+    return group.fields[index].equal(comparator: comparator);
   }
 
   String getDisplayName();
 }
 
+// 00000000
+// 00000000
+// 00000000
+// 00000000
+
+typedef Comparator = bool Function<V>(V valid, V current);
+
+class TaskDataField<V> {
+  final V valid;
+  final V current;
+
+  TaskDataField(this.valid, [this.current]);
+
+  TaskDataField<V> copyWith({V valid, V current}){
+    return TaskDataField(
+      valid??this.valid,
+      current??this.current
+    );
+  }
+
+  bool equal({Comparator comparator}) {
+    return comparator != null ? comparator(valid, current) : valid == current;
+  }
+}
+
+class TaskDataGroup {
+  final List<TaskDataField> fields;
+
+  TaskDataGroup._(this.fields);
+
+  factory TaskDataGroup({List validValues = const [], List currentValues = const [], List<TaskDataField> fields = const [], bool clear = false}) {
+    if(clear){
+      return TaskDataGroup._(validValues.map((valid) => TaskDataField(valid)));
+    }
+    bool copy = fields.isNotEmpty;
+    int startIndex = copy ? fields.length : currentValues.length;
+    return TaskDataGroup._(List.generate(validValues.length, (index){
+      dynamic valid = validValues[startIndex + index];
+      if(copy){
+        if(index < startIndex) {
+          return fields[index].copyWith(valid: valid);
+        }else{
+          return TaskDataField(valid);
+        }
+      }
+      dynamic current = index < startIndex ? currentValues[index] : null;
+      return TaskDataField(valid, current);
+    }));
+  }
+
+  TaskDataGroup copyWith({List<TaskDataField> fields = const [], List validValues = const [], List currentValues = const [], bool clear = false}){
+    return fields.isNotEmpty ? TaskDataGroup._(fields??this.fields) : TaskDataGroup(
+        validValues: validValues,
+        currentValues: currentValues,
+        fields: this.fields,
+        clear: clear);
+  }
+}
+
 class TaskState {
-  final List validValues;
-  final List currentValues;
+  final TaskDataGroup group;
   final TaskDifference diff;
 
-  const TaskState._(this.validValues, this.currentValues, this.diff);
+  const TaskState._(this.group, this.diff);
 
   factory TaskState.task(AdventureTask task){
     return TaskState(validValues: task.createData());
   }
 
-  factory TaskState({List validValues  = const [], List currentValues = const [], TaskDifference diff = TaskDifference.UNTOUCHED}) {
-    List values = validValues;
-    List current = currentValues;
-    if(current.length <  validValues.length){
-      current = List.generate(validValues.length, (index) => null);
-      List.copyRange(current, 0, currentValues);
-    }
-    return TaskState._(values,
-        current,
+  factory TaskState({TaskDataGroup group, List validValues = const [], List currentValues = const [], TaskDifference diff = TaskDifference.UNTOUCHED}) {
+    return TaskState._(group ?? TaskDataGroup(validValues: validValues, currentValues: currentValues),
         diff??diff
     );
   }
 
-  TaskState copyWith({List validValues, List currentValues, TaskDifference diff}){
-    return TaskState(validValues: validValues??this.validValues,
-        currentValues: currentValues??this.currentValues,
+  TaskState copyWith({TaskDataGroup group, List validValues = const [], List currentValues = const [], TaskDifference diff, bool clear = false}){
+    return TaskState(
+        group: group != null ? group : validValues.isNotEmpty ? group.copyWith(validValues: validValues, currentValues: currentValues, clear: clear): this.group,
         diff: diff??this.diff
     );
   }
 
-  List<bool> validate(AdventureTask task) {
-    return task.validate(validValues, currentValues);
+  List<bool> validate(AdventureTask task, {Comparator comparator}) {
+    return task.validate(group, comparator: comparator);
   }
 
-  bool validateSingle(AdventureTask task, int index) {
-    return task.validateSingle(validValues, currentValues, index);
+  bool validateSingle(AdventureTask task, int index, {Comparator comparator}) {
+    return task.validateSingle(group, index, comparator: comparator);
   }
 }
 
@@ -302,7 +354,7 @@ class VocabularyCollectionTask extends AdventureTask {
       : super(TaskType.VOCABULARY_COLLECTION, name);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, TaskState taskState) {
     throw UnimplementedError();
   }
 

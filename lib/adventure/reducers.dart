@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:axolotl/adventure/actions.dart';
 import 'package:axolotl/adventure/states.dart';
+import 'package:moor/moor.dart';
 import 'package:redux/redux.dart';
 
 final Reducer<AdventureState> adventureReducer = combineReducers([
@@ -13,6 +14,7 @@ final Reducer<AdventureState> adventureReducer = combineReducers([
   new TypedReducer<AdventureState, AdventureUpdateTask>(updateTask),
   new TypedReducer<AdventureState, AdventureOpen>(openAdventure),
   new TypedReducer<AdventureState, AdventureClose>(closeAdventure),
+  new TypedReducer<AdventureState, AdventureUpdateField>(updateTaskField)
 ]);
 
 AdventureState setInstance(AdventureState state, AdventureUpdateInstance action) {
@@ -45,7 +47,25 @@ AdventureState setState(AdventureState state, AdventureUpdateTaskState action){
   return state.copyWith(
       taskStates: newList.toList(growable: false)
   );
+}
 
+AdventureState updateTaskField(AdventureState state, AdventureUpdateField action) {
+  int taskIndex = action.taskIndex??state.taskIndex;
+  List<TaskState> newList = List.of(state.taskStates);
+  TaskState taskState = newList[taskIndex];
+  TaskDataGroup group = taskState.group;
+  List<TaskDataField> fieldsList = List.of(group.fields);
+  fieldsList[action.fieldIndex] = fieldsList[action.fieldIndex].copyWith(
+    current: action.value
+  );
+  newList[taskIndex] = taskState.copyWith(
+      group: taskState.group.copyWith(
+        fields: fieldsList
+      )
+  );
+  return state.copyWith(
+      taskStates: newList.toList(growable: false)
+  );
 }
 
 AdventureState removeTask(AdventureState state, AdventureRemoveTask action) {

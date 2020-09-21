@@ -7,7 +7,7 @@ class VocabularyCollectionTask extends AdventureTask {
   VocabularyCollectionTask(String name, this.provider) : super(TaskType.VOCABULARY_COLLECTION, name);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, TaskState taskState) {
     throw UnimplementedError();
   }
 

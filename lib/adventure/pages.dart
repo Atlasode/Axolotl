@@ -100,14 +100,15 @@ class AdventurePage extends StatelessWidget {
                           ],
                         )));
               }
+              int index = min(state.taskIndex, state.adventure.tasks.length - 1);
               return Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Card(
                       elevation: 5.0,
                       child: Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: state.adventure.tasks[min(state.taskIndex, state.adventure.tasks.length - 1)]
-                              .build(context))));
+                          child: state.adventure.tasks[index]
+                              .build(context, state.taskStates[index]))));
             }));
   }
 }
