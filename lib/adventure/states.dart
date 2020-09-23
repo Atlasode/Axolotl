@@ -1,3 +1,4 @@
+import 'package:axolotl/adventure/list/states.dart';
 import 'package:axolotl/adventure/tasks/verbs/blank_sentence/states.dart';
 import 'package:axolotl/adventure/tasks/verbs/collection/pages.dart';
 import 'package:axolotl/adventure/tasks/verbs/collection/states.dart';
@@ -85,6 +86,16 @@ class AdventureState {
 
   AdventureState close() {
     return AdventureState(settings: settings);
+  }
+
+  AdventureState setField(int index, dynamic value, {int taskIndex}) {
+    int tIndex = taskIndex??this.taskIndex;
+    List<TaskState> newList = List.of(taskStates);
+    TaskState taskState = newList[tIndex];
+    newList[tIndex] = taskState.setField(index, value);
+    return copyWith(
+        taskStates: newList.toList(growable: false),
+    );
   }
 
   AdventureState copyWith(
@@ -201,6 +212,27 @@ enum TaskType {
   VOCABULARY_COLLECTION,
 }
 
+bool compareString(String valid, String current) {
+  String formatted = valid.replaceAll('á', 'a')
+      .replaceAll('í', 'i')
+      .replaceAll('é', 'e')
+      .replaceAll('ú', 'u')
+      .replaceAll('ó', 'o')
+      .replaceAll('ñ', 'n')
+      .replaceAll('ü', 'u')
+      .replaceAll('¡', '!')
+      .replaceAll('¿', '?')
+      .replaceAll('È', 'E')
+      .replaceAll('À', 'A')
+      .replaceAll('Ù', 'U')
+      .replaceAll('Ñ', 'N');
+  return formatted == current;
+}
+
+bool compareStringStrict(String valid, String current) {
+  return valid == current;
+  }
+
 abstract class AdventureTask<T> {
   final TaskType type;
   final String name;
@@ -214,13 +246,17 @@ abstract class AdventureTask<T> {
     return [];
   }
 
+  Comparator<String> getComparator(){
+    return compareString;
+  }
+
   List<bool> validate(TaskDataGroup group, {Comparator comparator}) {
-    return group.fields.map((element) => element.equal(comparator: comparator)).toList();
+    return group.fields.map((element) => element.equal(comparator: comparator?? getComparator())).toList();
   }
 
   bool validateSingle(TaskDataGroup group, int index, {Comparator comparator}) {
     assert(group.fields.length < index);
-    return group.fields[index].equal(comparator: comparator);
+    return group.fields[index].equal(comparator: comparator?? getComparator());
   }
 
   String getDisplayName();
@@ -231,7 +267,7 @@ abstract class AdventureTask<T> {
 // 00000000
 // 00000000
 
-typedef Comparator = bool Function<V>(V valid, V current);
+typedef Comparator<V> = bool Function(V valid, V current);
 
 class TaskDataField<V> {
   final V valid;
@@ -276,6 +312,20 @@ class TaskDataGroup {
     }));
   }
 
+  TaskDataGroup setField(int index, dynamic value){
+    List<TaskDataField> fieldsList = List.of(fields);
+    fieldsList[index] = fieldsList[index].copyWith(
+        current: value
+    );
+    return copyWith(
+      fields: fieldsList
+    );
+  }
+
+  dynamic isFieldEdited(int index){
+    return fields[index] != null;
+  }
+
   TaskDataGroup copyWith({List<TaskDataField> fields = const [], List validValues = const [], List currentValues = const [], bool clear = false}){
     return fields.isNotEmpty ? TaskDataGroup._(fields??this.fields) : TaskDataGroup(
         validValues: validValues,
@@ -306,6 +356,16 @@ class TaskState {
         group: group != null ? group : validValues.isNotEmpty ? group.copyWith(validValues: validValues, currentValues: currentValues, clear: clear): this.group,
         diff: diff??this.diff
     );
+  }
+
+  TaskDifference calculateDifference(TaskDataGroup group){
+    return group.fields.where((element) => element.current != null).length == group.fields.length ?
+        TaskDifference.EDITED_DONE : TaskDifference.EDITED;
+  }
+
+  TaskState setField(int index, dynamic value){
+    TaskDataGroup group = this.group.setField(index, value);
+    return copyWith(group: group, diff: calculateDifference(group));
   }
 
   List<bool> validate(AdventureTask task, {Comparator comparator}) {

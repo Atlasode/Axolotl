@@ -50,22 +50,8 @@ AdventureState setState(AdventureState state, AdventureUpdateTaskState action){
 }
 
 AdventureState updateTaskField(AdventureState state, AdventureUpdateField action) {
-  int taskIndex = action.taskIndex??state.taskIndex;
-  List<TaskState> newList = List.of(state.taskStates);
-  TaskState taskState = newList[taskIndex];
-  TaskDataGroup group = taskState.group;
-  List<TaskDataField> fieldsList = List.of(group.fields);
-  fieldsList[action.fieldIndex] = fieldsList[action.fieldIndex].copyWith(
-    current: action.value
-  );
-  newList[taskIndex] = taskState.copyWith(
-      group: taskState.group.copyWith(
-        fields: fieldsList
-      )
-  );
-  return state.copyWith(
-      taskStates: newList.toList(growable: false)
-  );
+  return state
+      .setField(action.fieldIndex, action.value, taskIndex: action.taskIndex);
 }
 
 AdventureState removeTask(AdventureState state, AdventureRemoveTask action) {
