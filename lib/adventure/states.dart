@@ -8,6 +8,7 @@ import 'package:axolotl/utils/common_utils.dart';
 import 'package:axolotl/vocabulary/vocabulary.dart';
 import 'package:axolotl/vocabulary/vocabulary_page.dart';
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
 enum TaskDifference {
   NONE,
@@ -23,6 +24,11 @@ enum TaskDifference {
   FAILED,
   //This task has been validated, has mistakes and loose validation settings
   MISTAKE,
+}
+
+bool canEdit(TaskDifference difference){
+  return difference != TaskDifference.FAILED
+      && difference != TaskDifference.DONE;
 }
 
 Color getDiffColor(TaskDifference diff){
@@ -68,12 +74,69 @@ class AdventureState {
     );
   }
 
-  List<bool> validate(){
-    return taskStates[taskIndex].validate(adventure.tasks[taskIndex]);
+  AdventureState move(bool next){
+    return next ? moveNext() : movePrevious();
   }
 
-  bool validateSingle(int index){
-    return taskStates[taskIndex].validateSingle(adventure.tasks[taskIndex], index);
+  AdventureState jump(int index) {
+    assert(taskStates.length > index);
+    return copyWith(
+      taskIndex: index
+    );
+  }
+
+  AdventureState validateAll(){
+    List<TaskState> newStates = List.of(taskStates);
+    for(int index = 0;index < taskStates.length;index++){
+      TaskState state = taskStates[index];
+      newStates[index] = state.validate(adventure.tasks[index], settings);
+    }
+    return copyWith(
+        taskStates: newStates
+    );
+  }
+
+  AdventureState validate(int index){
+    TaskState state = taskStates[index];
+    List<TaskState> newStates = List.of(taskStates);
+    newStates[index] = state.validate(adventure.tasks[index], settings);
+    return copyWith(
+      taskStates: newStates
+    );
+  }
+
+  AdventureState moveNext() {
+    assert(taskStates.length > this.taskIndex + 1);
+    AdventureState state = this;
+    if(settings.testDirectly) {
+      state = validate(taskIndex + 1);
+    }
+    return state.copyWith(
+      taskIndex: this.taskIndex + 1
+    );
+  }
+
+  AdventureState movePrevious() {
+    assert(taskStates.length > this.taskIndex - 1);
+    AdventureState state = this;
+    if(settings.testDirectly) {
+      state = validate(taskIndex - 1);
+    }
+    return state.copyWith(
+        taskIndex: this.taskIndex - 1
+    );
+  }
+
+  bool get canNext {
+    return hasNext;
+  }
+
+  bool get canPrevious {
+    return hasPrevious && settings.switchEnabled;
+  }
+
+  bool get canJump {
+    return settings.switchEnabled;
   }
 
   bool get hasNext {
@@ -82,6 +145,20 @@ class AdventureState {
 
   bool get hasPrevious {
     return taskIndex > 0 ;
+  }
+
+  // Validation for single page
+  bool get hasTextButton {
+    return hasNext && settings.testSingle;
+  }
+
+  // Validation for all pages at the end
+  bool get hasDoneButton {
+    return !hasNext;
+  }
+
+  bool canEditTask(int taskIndex){
+    return canEdit(taskStates[taskIndex].diff);
   }
 
   AdventureState close() {
@@ -118,18 +195,28 @@ class AdventureSettings {
       AdventureSettings(editEnabled: true, switchEnabled: true);
   static const AdventureSettings EASY = AdventureSettings();
   static const AdventureSettings HARD =
-      AdventureSettings(switchEnabled: false, testDirectly: true);
+      AdventureSettings(switchEnabled: false, testDirectly: true,
+      canEditAfterTest: false, replaceWithValid: true, testSingle: false);
 
   //Allows to edit the adventures
   final bool editEnabled;
   //Tests the adventures directly after the done or "switch right" button was
   // pressed. And shows the results directly after
   final bool testDirectly;
+  // Shows a text button on every page to test the pages individually
+  final bool testSingle;
+  // If the use can edit the fields after they were tested
+  final bool canEditAfterTest;
   //If the user can switch between the tasks in an adventure back and forth
   final bool switchEnabled;
+  // If the field should contain the valid value after the test.
+  final bool replaceWithValid;
 
   const AdventureSettings(
       {this.editEnabled = false,
+        this.testSingle = true,
+        this.canEditAfterTest = true,
+        this.replaceWithValid = false,
       this.testDirectly = false,
       this.switchEnabled = true});
 }
@@ -213,7 +300,7 @@ enum TaskType {
 }
 
 bool compareString(String valid, String current) {
-  String formatted = valid.replaceAll('á', 'a')
+  String formattedValid = valid.replaceAll('á', 'a')
       .replaceAll('í', 'i')
       .replaceAll('é', 'e')
       .replaceAll('ú', 'u')
@@ -226,7 +313,20 @@ bool compareString(String valid, String current) {
       .replaceAll('À', 'A')
       .replaceAll('Ù', 'U')
       .replaceAll('Ñ', 'N');
-  return formatted == current;
+  String formattedCurrent = current.replaceAll('á', 'a')
+      .replaceAll('í', 'i')
+      .replaceAll('é', 'e')
+      .replaceAll('ú', 'u')
+      .replaceAll('ó', 'o')
+      .replaceAll('ñ', 'n')
+      .replaceAll('ü', 'u')
+      .replaceAll('¡', '!')
+      .replaceAll('¿', '?')
+      .replaceAll('È', 'E')
+      .replaceAll('À', 'A')
+      .replaceAll('Ù', 'U')
+      .replaceAll('Ñ', 'N');
+  return formattedValid == formattedCurrent;
 }
 
 bool compareStringStrict(String valid, String current) {
@@ -272,13 +372,15 @@ typedef Comparator<V> = bool Function(V valid, V current);
 class TaskDataField<V> {
   final V valid;
   final V current;
+  final TaskDifference diff;
 
-  TaskDataField(this.valid, [this.current]);
+  TaskDataField(this.valid, {this.current, this.diff = TaskDifference.UNTOUCHED});
 
-  TaskDataField<V> copyWith({V valid, V current}){
+  TaskDataField<V> copyWith({V valid, V current, TaskDifference diff}){
     return TaskDataField(
       valid??this.valid,
-      current??this.current
+      current: current??this.current,
+      diff: diff??this.diff
     );
   }
 
@@ -308,14 +410,15 @@ class TaskDataGroup {
         }
       }
       dynamic current = index < startIndex ? currentValues[index] : null;
-      return TaskDataField(valid, current);
+      return TaskDataField(valid, current: current);
     }));
   }
 
   TaskDataGroup setField(int index, dynamic value){
     List<TaskDataField> fieldsList = List.of(fields);
     fieldsList[index] = fieldsList[index].copyWith(
-        current: value
+        current: value,
+      diff: TaskDifference.EDITED
     );
     return copyWith(
       fields: fieldsList
@@ -332,6 +435,32 @@ class TaskDataGroup {
         currentValues: currentValues,
         fields: this.fields,
         clear: clear);
+  }
+
+  static TaskDifference calculateDifference(bool state, AdventureSettings settings){
+    if(state){
+      return TaskDifference.DONE;
+    }
+    return settings.canEditAfterTest ? TaskDifference.MISTAKE : TaskDifference.FAILED;
+  }
+
+  Tuple2<TaskDataGroup, TaskDifference> validate(AdventureTask task, AdventureSettings settings) {
+    List<bool> testValues = task.validate(this);
+    List<TaskDataField> fieldsList = List.of(fields);
+    for(int index = 0;index < fields.length;index++) {
+      fieldsList[index] = fieldsList[index].copyWith(
+          diff: calculateDifference(testValues[index], settings)
+      );
+    }
+    TaskDifference taskDiff;
+    if(testValues.any((element) => !element)){
+      taskDiff = settings.canEditAfterTest ? TaskDifference.MISTAKE : TaskDifference.FAILED;
+    }else{
+      taskDiff = TaskDifference.DONE;
+    }
+    return Tuple2(copyWith(
+        fields: fieldsList
+    ), taskDiff);
   }
 }
 
@@ -358,7 +487,7 @@ class TaskState {
     );
   }
 
-  TaskDifference calculateDifference(TaskDataGroup group){
+  static TaskDifference calculateDifference(TaskDataGroup group){
     return group.fields.where((element) => element.current != null).length == group.fields.length ?
         TaskDifference.EDITED_DONE : TaskDifference.EDITED;
   }
@@ -368,8 +497,9 @@ class TaskState {
     return copyWith(group: group, diff: calculateDifference(group));
   }
 
-  List<bool> validate(AdventureTask task, {Comparator comparator}) {
-    return task.validate(group, comparator: comparator);
+  TaskState validate(AdventureTask task, AdventureSettings settings) {
+    Tuple2<TaskDataGroup, TaskDifference> data = group.validate(task, settings);
+    return copyWith(group: data.item1, diff: data.item2);
   }
 
   bool validateSingle(AdventureTask task, int index, {Comparator comparator}) {

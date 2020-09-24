@@ -8,6 +8,7 @@ import 'package:redux/redux.dart';
 final Reducer<AdventureState> adventureReducer = combineReducers([
   new TypedReducer<AdventureState, AdventureUpdateInstance>(setInstance),
   new TypedReducer<AdventureState, AdventureUpdateIndex>(setIndex),
+  new TypedReducer<AdventureState, AdventureMovePage>(movePage),
   new TypedReducer<AdventureState, AdventureUpdateSettings>(setSettings),
   new TypedReducer<AdventureState, AdventureRemoveTask>(removeTask),
   new TypedReducer<AdventureState, AdventureAddTask>(addTask),
@@ -27,9 +28,11 @@ AdventureState setInstance(AdventureState state, AdventureUpdateInstance action)
 }
 
 AdventureState setIndex(AdventureState state, AdventureUpdateIndex action) {
-  return state.copyWith(
-    taskIndex: action.index
-  );
+  return state.jump(action.index);
+}
+
+AdventureState movePage(AdventureState state, AdventureMovePage action) {
+  return state.move(action.next);
 }
 
 AdventureState setSettings(AdventureState state, AdventureUpdateSettings action) {

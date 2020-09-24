@@ -18,6 +18,13 @@ class AdventureUpdateIndex extends AdventureAction {
   AdventureUpdateIndex(this.index);
 }
 
+// Generally the same as UpdateIndex but only move forwards or backwards
+class AdventureMovePage {
+  final bool next;
+
+  AdventureMovePage(this.next);
+}
+
 class AdventureUpdateSettings extends AdventureAction {
   final AdventureSettings settings;
 
