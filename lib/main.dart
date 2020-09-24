@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:axolotl/adventure/list/pages.dart';
@@ -108,19 +109,29 @@ class _HomePageState extends State<HomePage> {
         providers: [VocabularyPage.createProvider()],
         child: Scaffold(
           body: widget.tabs[_index].page,
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if(widget.tabs[_index].bottomBar != null)
-                widget.tabs[_index].bottomBar(context),
-              BottomNavigationBar(
-                currentIndex: _index,
-                onTap: onTabTapped,
-                type: BottomNavigationBarType.fixed,
-                items: [...widget.tabs.map((tab) => tab.item)],
-              ),
-            ],
+          bottomNavigationBar: BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if(widget.tabs[_index].bottomBar != null)
+                  widget.tabs[_index].bottomBar(context),
+                BottomNavigationBar(
+                  currentIndex: _index,
+                  onTap: onTabTapped,
+                  type: BottomNavigationBarType.fixed,
+                  items: [...widget.tabs.map((tab) => tab.item)],
+                ),
+              ],
+            ),
           ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.check),
+              onPressed: (){
+
+              },
+            )
         ));
   }
 }

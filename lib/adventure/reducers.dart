@@ -21,9 +21,9 @@ final Reducer<AdventureState> adventureReducer = combineReducers([
 AdventureState setInstance(AdventureState state, AdventureUpdateInstance action) {
   return state.copyWith(
       adventure: action.instance,
-    taskStates: action.instance.tasks
-        .map((task) => TaskState.task(task))
-        .toList(growable: false)
+      taskStates: action.instance.tasks
+          .map((task) => TaskState.task(task))
+          .toList(growable: false)
   );
 }
 
@@ -37,15 +37,15 @@ AdventureState movePage(AdventureState state, AdventureMovePage action) {
 
 AdventureState setSettings(AdventureState state, AdventureUpdateSettings action) {
   return state.copyWith(
-    settings: action.settings
+      settings: action.settings
   );
 }
 
 AdventureState setState(AdventureState state, AdventureUpdateTaskState action){
   List<TaskState> newList = List.of(state.taskStates);
   newList[action.index] = newList[action.index].copyWith(
-    diff: action.diff,
-    currentValues: action.values
+      diff: action.diff,
+      currentValues: action.values
   );
   return state.copyWith(
       taskStates: newList.toList(growable: false)
@@ -63,9 +63,9 @@ AdventureState removeTask(AdventureState state, AdventureRemoveTask action) {
   List<TaskState> newStates = List.of(state.taskStates);
   newStates.removeAt(action.index);
   return state.copyWith(
-    adventure: state.adventure.copyWith(tasks: newList.toList(growable: false)),
+      adventure: state.adventure.copyWith(tasks: newList.toList(growable: false)),
       taskStates: newStates.toList(growable: false),
-    listIndex: min(state.listIndex, newList.length - 1)
+      listIndex: min(state.listIndex, newList.length - 1)
   );
 }
 

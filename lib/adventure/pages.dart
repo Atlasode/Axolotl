@@ -47,12 +47,19 @@ class AdventurePage extends StatelessWidget {
   const AdventurePage({this.title = 'Adventure'});
 
   static Widget createBottomView(BuildContext context) {
-    return SizedBox(
-      height: 110,
-      child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: VocabularyView()
-      ),
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          height: 80,
+          child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: VocabularyView()
+          ),
+        ),
+      ],
     );
   }
 
@@ -109,7 +116,8 @@ class AdventurePage extends StatelessWidget {
                           padding: const EdgeInsets.all(12.0),
                           child: state.adventure.tasks[index]
                               .build(context, state.taskStates[index]))));
-            }));
+            }),
+    );
   }
 }
 
@@ -141,8 +149,8 @@ class _VocabularyViewState extends State<VocabularyView> {
                 ),
               ]
           );
-          return Card(
-          elevation: 5.0,
+          return Container(
+          //elevation: 5.0,
           child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -152,7 +160,7 @@ class _VocabularyViewState extends State<VocabularyView> {
                           icon: Icon(Icons.arrow_back),
                           iconSize: 38,
                           onPressed: state.hasPrevious ? (){
-                            Redux.dispatch(AdventureUpdateIndex(state.taskIndex - 1));
+                            Redux.dispatch(AdventureMovePage(false));
                           } : null,
                         ),
                         Column(
@@ -183,7 +191,7 @@ class _VocabularyViewState extends State<VocabularyView> {
                           icon: Icon(Icons.arrow_forward),
                           iconSize: 38,
                           onPressed: state.hasNext ? (){
-                            Redux.dispatch(AdventureUpdateIndex(state.taskIndex + 1));
+                            Redux.dispatch(AdventureMovePage(true));
                           } : null,
                         ),
                       ],
