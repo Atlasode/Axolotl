@@ -8,17 +8,17 @@ part of 'vocabulary.dart';
 
 VocabularyInfo _$VocabularyInfoFromJson(Map<String, dynamic> json) {
   return VocabularyInfo(
-    json['vocabulary'] as int,
-    json['firstLang'] as String,
-    json['secondLang'] as String,
+    json['id'] as String,
+    json['givenLang'] as String,
+    json['expectedLang'] as String,
   );
 }
 
 Map<String, dynamic> _$VocabularyInfoToJson(VocabularyInfo instance) =>
     <String, dynamic>{
-      'vocabulary': instance.vocabulary,
-      'firstLang': instance.firstLang,
-      'secondLang': instance.secondLang,
+      'id': instance.id,
+      'givenLang': instance.givenLang,
+      'expectedLang': instance.expectedLang,
     };
 
 Description _$DescriptionFromJson(Map<String, dynamic> json) {
@@ -72,7 +72,7 @@ const _$DescriptionTypeEnumMap = {
 
 VocabularyDefinition _$VocabularyDefinitionFromJson(Map<String, dynamic> json) {
   return VocabularyDefinition(
-    json['id'] as int,
+    json['id'] as String,
     json['lang_key'] as String,
   );
 }
@@ -80,34 +80,34 @@ VocabularyDefinition _$VocabularyDefinitionFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$VocabularyDefinitionToJson(
         VocabularyDefinition instance) =>
     <String, dynamic>{
-      'id': instance.vocabulary,
+      'id': instance.id,
       'lang_key': instance.langKey,
     };
 
 VocabularyPair _$VocabularyPairFromJson(Map<String, dynamic> json) {
   return VocabularyPair(
-    json['id'] as int,
-    json['first'] == null
+    json['id'] as String,
+    json['given'] == null
         ? null
-        : VocabularyData.fromJson(json['first'] as Map<String, dynamic>),
-    json['second'] == null
+        : VocabularyData.fromJson(json['given'] as Map<String, dynamic>),
+    json['expected'] == null
         ? null
-        : VocabularyData.fromJson(json['second'] as Map<String, dynamic>),
+        : VocabularyData.fromJson(json['expected'] as Map<String, dynamic>),
   );
 }
 
 Map<String, dynamic> _$VocabularyPairToJson(VocabularyPair instance) =>
     <String, dynamic>{
-      'id': instance.vocabulary,
-      'first': instance.first?.toJson(),
-      'second': instance.second?.toJson(),
+      'id': instance.id,
+      'given': instance.given?.toJson(),
+      'expected': instance.expected?.toJson(),
     };
 
 VocabularyData _$VocabularyDataFromJson(Map<String, dynamic> json) {
   return VocabularyData(
-    json['vocabulary'] as String,
+    (json['terms'] as List)?.map((e) => e as String)?.toList(),
     json['lang_key'] as String,
-    json['id'] as int,
+    json['id'] as String,
     descriptions: (json['descriptions'] as List)
             ?.map((e) => e == null
                 ? null
@@ -120,7 +120,7 @@ VocabularyData _$VocabularyDataFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$VocabularyDataToJson(VocabularyData instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'vocabulary': instance.vocabulary,
+      'terms': instance.terms,
       'lang_key': instance.langKey,
       'descriptions': instance.descriptions?.map((e) => e?.toJson())?.toList(),
     };

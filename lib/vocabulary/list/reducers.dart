@@ -43,7 +43,7 @@ VocabularyListState loadList(VocabularyListState state, VocabularyListLoaded act
 VocabularyListState finish(VocabularyListState state, VocabularyListFinish action) {
   VocabularyListEditState editState = state.currentEdit;
   List<VocabularyList> newList = List.of(state.lists);
-  Repositories.listRepository.addList(editState.toList());
+  Repositories.lists.addList(editState.toList());
   if(editState.index != null) {
     newList[editState.index] = editState.toList();
   }else{

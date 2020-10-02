@@ -10,25 +10,25 @@ part 'vocabulary.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class VocabularyInfo implements AbstractInfo{
-  final int vocabulary;
-  final String firstLang;
-  final String secondLang;
+  final String id;
+  final String givenLang;
+  final String expectedLang;
 
-  const VocabularyInfo(this.vocabulary, this.firstLang, this.secondLang);
+  const VocabularyInfo(this.id, this.givenLang, this.expectedLang);
 
-  VocabularyDefinition getFirst(){
-    return VocabularyDefinition(vocabulary, firstLang);
+  VocabularyDefinition getGiven(){
+    return VocabularyDefinition(id, givenLang);
   }
 
-  VocabularyDefinition getSecond(){
-    return VocabularyDefinition(vocabulary, secondLang);
+  VocabularyDefinition getExpected(){
+    return VocabularyDefinition(id, expectedLang);
   }
 
   Map<String, dynamic> toJson() => _$VocabularyInfoToJson(this);
 
   @override
   String getId() {
-    return "$vocabulary";
+    return "$id";
   }
 
   @override
@@ -56,27 +56,26 @@ class Description {
 
 @JsonSerializable()
 class VocabularyDefinition {
-  @JsonKey(name: 'id')
-  final int vocabulary;
+  final String id;
   @JsonKey(name: 'lang_key')
   final String langKey;
 
-  const VocabularyDefinition(this.vocabulary, this.langKey);
+  const VocabularyDefinition(this.id, this.langKey);
 
   factory VocabularyDefinition.fromJson(Map<String, dynamic> json) =>
       _$VocabularyDefinitionFromJson(json);
 
   Map<String, dynamic> toJson() => _$VocabularyDefinitionToJson(this);
+
 }
 
 @JsonSerializable(explicitToJson: true)
 class VocabularyPair {
-  @JsonKey(name: 'id')
-  final int vocabulary;
-  final VocabularyData first;
-  final VocabularyData second;
+  final String id;
+  final VocabularyData given;
+  final VocabularyData expected;
 
-  const VocabularyPair(this.vocabulary, this.first, this.second);
+  const VocabularyPair(this.id, this.given, this.expected);
 
   factory VocabularyPair.fromJson(Map<String, dynamic> json) =>
       _$VocabularyPairFromJson(json);
@@ -86,14 +85,22 @@ class VocabularyPair {
 
 @JsonSerializable(explicitToJson: true)
 class VocabularyData {
-  final int id;
-  final String vocabulary;
+  final String id;
+  final List<String> terms;
   @JsonKey(name: 'lang_key')
   final String langKey;
   @JsonKey(defaultValue: [])
   final List<Description> descriptions;
 
-  const VocabularyData(this.vocabulary, this.langKey, this.id, {this.descriptions = const []});
+  const VocabularyData(this.terms, this.langKey, this.id, {this.descriptions = const []});
+
+  factory VocabularyData.single(String term, String langKey, String id, {List<Description> descriptions = const []})  {
+    return VocabularyData([term], langKey, id, descriptions: descriptions);
+  }
+
+  factory VocabularyData.multi(List<String> terms, String langKey, String id, {List<Description> descriptions = const []})  {
+    return VocabularyData(terms, langKey, id, descriptions: descriptions);
+  }
 
   factory VocabularyData.fromJson(Map<String, dynamic> json) => _$VocabularyDataFromJson(json);
 

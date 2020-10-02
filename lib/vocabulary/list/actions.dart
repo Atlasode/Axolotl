@@ -100,7 +100,7 @@ Future<void> fetchListsAction(bool dummyList) async{
   if(dummyList){
     lists = dummyLists;
   }else {
-    lists = await Repositories.listRepository.getAllLists();
+    lists = await Repositories.lists.getAllLists();
   }
   Redux.store.dispatch(VocabularyListLoaded(lists));
 }

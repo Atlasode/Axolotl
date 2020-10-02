@@ -18,6 +18,13 @@ class AdventureUpdateIndex extends AdventureAction {
   AdventureUpdateIndex(this.index);
 }
 
+class AdventureValidate extends AdventureAction {
+  final bool all;
+
+  AdventureValidate(this.all);
+
+}
+
 // Generally the same as UpdateIndex but only move forwards or backwards
 class AdventureMovePage {
   final bool next;
@@ -57,14 +64,16 @@ class AdventureRemoveTask extends AdventureAction {
 class AdventureUpdateTask extends AdventureAction {
   final int index;
   final AdventureTask task;
+  final AdventureTaskData taskData;
 
-  AdventureUpdateTask(this.index, this.task);
+  AdventureUpdateTask(this.index, this.task, this.taskData);
 }
 
 class AdventureAddTask extends AdventureAction {
   final AdventureTask task;
+  final AdventureTaskData taskData;
 
-  const AdventureAddTask(this.task);
+  const AdventureAddTask(this.task, this.taskData);
 }
 
 class AdventureClose extends AdventureAction{
@@ -74,8 +83,18 @@ class AdventureClose extends AdventureAction{
 
 class AdventureOpen extends AdventureAction{
   final Adventure adventure;
+  final List<AdventureTask> tasks;
   final int index;
   final AdventureSettings settings;
 
-  AdventureOpen(this.adventure, this.index, {this.settings = AdventureSettings.EASY});
+  AdventureOpen(this.adventure, this.tasks, this.index, {this.settings});
+}
+
+Future<void> openAdventure(
+    Adventure adventure,
+    int index,
+    {AdventureSettings settings = AdventureSettings.EASY})
+async {
+  List<AdventureTask> tasks = await Future.wait(adventure.taskData.map((e) => e.createTask()));
+  Redux.dispatch(AdventureOpen(adventure, tasks, index, settings: settings));
 }

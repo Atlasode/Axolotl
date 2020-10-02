@@ -5,6 +5,25 @@ import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:flutter/material.dart';
 
+class VerbBlankTextData implements BlankTextData {
+
+  final VerbDefinition verb;
+  final Person person;
+  final bool showPronoun;
+  final bool showTense;
+
+  const VerbBlankTextData(this.verb, this.person, {this.showPronoun = false, this.showTense = false});
+
+  Future<VerbBlankText> create() async {
+    return VerbBlankText(
+      await Repositories.verbs.getVerb(verb),
+      person,
+      showPronoun,
+      showTense,
+    );
+  }
+}
+
 class VerbBlankText implements BlankText{
 
   final Verb verb;
@@ -12,7 +31,7 @@ class VerbBlankText implements BlankText{
   final bool showPronoun;
   final bool showTense;
 
-  const VerbBlankText(this.verb, this.person, {this.showPronoun = false, this.showTense = false});
+  const VerbBlankText(this.verb, this.person, this.showPronoun, this.showTense);
 
   @override
   String getText() {
@@ -24,27 +43,11 @@ class VerbBlankText implements BlankText{
     StringBuffer buffer = StringBuffer();
     buffer.write(verb.infinitive);
     if(showPronoun){
-      buffer.write('/${conjugationPronouns[person.index]}');
+      buffer.write('/${conjugationPronounsShort[person.index]}');
     }
     if(showTense){
       buffer.write('/${verb.category.displayName.toLowerCase()}');
     }
     return buffer.toString();
   }
-}
-
-class VerbTextAreaTask extends TextAreaTask {
-
-  const VerbTextAreaTask(String name, List<TextSection> sections) :super(TaskType.VERB_SENTENCE, name, sections);
-
-  @override
-  Widget build(BuildContext context, TaskState taskState) {
-    return VerbTextArea(task: this, taskState: taskState,);
-  }
-
-  @override
-  String getDisplayName() {
-    throw UnimplementedError();
-  }
-
 }

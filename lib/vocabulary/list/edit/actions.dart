@@ -80,8 +80,8 @@ class CategoryCacheLoaded extends CategoryCacheAction {
 
 Future<void> fetchCategoryDataAction() async {
   Redux.store.dispatch(CategoryCacheLoading(LoadingState.LOADING));
-  Future<List<String>> tenses = Repositories.verbRepository.getTenses();
-  Future<List<String>> moods = Repositories.verbRepository.getMoods();
+  Future<List<String>> tenses = Repositories.verbs.getTenses();
+  Future<List<String>> moods = Repositories.verbs.getMoods();
   return Future.wait([tenses, moods]).then((value) {
     List<String> tenses = value[0];
     List<String> moods = value[1];

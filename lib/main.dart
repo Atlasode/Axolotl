@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:axolotl/adventure/actions.dart';
 import 'package:axolotl/adventure/list/pages.dart';
 import 'package:axolotl/adventure/pages.dart';
 import 'package:axolotl/common/app_state.dart';
@@ -18,6 +19,9 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tuple/tuple.dart';
 import 'package:redux/redux.dart';
+import 'dart:async';
+import 'dart:io';
+import 'dart:convert';
 
 void main() async {
   await Redux.init();
@@ -29,17 +33,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Repositories.verbRepository.hashCode;
+    Repositories.verbs.hashCode;
     return StoreProvider<AppState>(
         store: Redux.store,
         child: MaterialApp(
-      title: 'Axolotl',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: HomePage(),
-    ));
+          title: 'Axolotl',
+          theme: ThemeData(
+            primarySwatch: Colors.green,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: HomePage(),
+        ));
   }
 }
 
@@ -77,12 +81,9 @@ class HomePage extends StatefulWidget {
             ),
             page: AdventurePage()),
         PageTab(
-          item: BottomNavigationBarItem(
-            title: Text('Dictionary'),
-            icon: Icon(Icons.apps)
-          ),
-          page: DictionaryPage()
-        )
+            item: BottomNavigationBarItem(
+                title: Text('Dictionary'), icon: Icon(Icons.apps)),
+            page: DictionaryPage())
       ]})
       : super(key: key);
 
@@ -107,31 +108,39 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [VocabularyPage.createProvider()],
-        child: Scaffold(
-          body: widget.tabs[_index].page,
-          bottomNavigationBar: BottomAppBar(
-            shape: CircularNotchedRectangle(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if(widget.tabs[_index].bottomBar != null)
-                  widget.tabs[_index].bottomBar(context),
-                BottomNavigationBar(
-                  currentIndex: _index,
-                  onTap: onTabTapped,
-                  type: BottomNavigationBarType.fixed,
-                  items: [...widget.tabs.map((tab) => tab.item)],
-                ),
-              ],
-            ),
-          ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-            floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.check),
-              onPressed: (){
-
-              },
-            )
-        ));
+        child: Builder(
+            builder: (context) => StoreConnector<AppState, bool>(
+                converter: (store) =>
+                    store.state.adventureState.hasTestButton ||
+                    store.state.adventureState.hasDoneButton,
+                distinct: true,
+                builder: (context, validateButton) => Scaffold(
+                    body: widget.tabs[_index].page,
+                    bottomNavigationBar: BottomAppBar(
+                      shape: CircularNotchedRectangle(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.tabs[_index].bottomBar != null)
+                            widget.tabs[_index].bottomBar(context),
+                          BottomNavigationBar(
+                            currentIndex: _index,
+                            onTap: onTabTapped,
+                            type: BottomNavigationBarType.fixed,
+                            items: [...widget.tabs.map((tab) => tab.item)],
+                          ),
+                        ],
+                      ),
+                    ),
+                    floatingActionButtonLocation:
+                        FloatingActionButtonLocation.centerDocked,
+                    floatingActionButton: validateButton && _index == 2
+                        ? FloatingActionButton(
+                            child: Icon(Icons.check),
+                            onPressed: () {
+                              Redux.dispatch(AdventureValidate(false));
+                            },
+                          )
+                        : null))));
   }
 }

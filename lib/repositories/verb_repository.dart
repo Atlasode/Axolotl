@@ -4,16 +4,14 @@ import 'dart:io';
 import 'package:axolotl/vocabulary/list/vocabulary_list.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:axolotl/utils/common_utils.dart';
+import 'package:axolotl/vocabulary/vocabulary.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:moor/ffi.dart';
-import 'package:moor_flutter/moor_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:moor/moor.dart';
 
 //part 'verb_repository.g.dart';
 
@@ -31,7 +29,6 @@ abstract class VerbRepository {
   Future<List<String>> getMoods();
 }
 
-//https://pub.dev/packages/moor
 class SQLRepository implements VerbRepository {
   final String tableVerbs = 'verbs';
   final String columnInfinitive = 'infinitive';

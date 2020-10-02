@@ -71,6 +71,7 @@ const _$PersonTypeEnumMap = {
 Map<String, dynamic> _$VerbToJson(Verb instance) => <String, dynamic>{
       'infinitive': instance.infinitive,
       'category': instance.category,
+      'displayInfinitive': instance.displayInfinitive,
       'verb_english': instance.verbEnglish,
       'forms': instance.forms,
     };

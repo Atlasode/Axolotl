@@ -48,7 +48,7 @@ class AdventureListPageState extends State<AdventureListPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Redux.dispatch(AdventureOpen(Adventure.EMPTY, null, settings: AdventureSettings.EDIT));
+          openAdventure(Adventure.EMPTY, null, settings: AdventureSettings.EDIT);
           FlutterUtils.pushPage(
               context: context,
               builder: (context) => AdventurePage());
@@ -89,7 +89,7 @@ class AdventureListView extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),*/
                             Text(
-                                'Size: ${list.tasks.isEmpty ? 'Empty' : list.tasks.length}')
+                                'Size: ${list.taskData.isEmpty ? 'Empty' : list.taskData.length}')
                           ])),
                   body: Container(
                       margin: EdgeInsets.only(bottom: 10, right: 100),
@@ -100,7 +100,7 @@ class AdventureListView extends StatelessWidget {
                           RaisedButton(
                             child: Text("Open"),
                             onPressed: () {
-                              Redux.dispatch(AdventureOpen(list, index));
+                              openAdventure(list, index);
                               Navigator.pop(context);
                               /*FlutterUtils.pushPage(
                                   context: context,
@@ -110,7 +110,7 @@ class AdventureListView extends StatelessWidget {
                           RaisedButton(
                             child: Text("Edit"),
                             onPressed: () {
-                              Redux.dispatch(AdventureOpen(list, index));
+                              openAdventure(list, index);
                               /*FlutterUtils.pushPage(
                                   context: context,
                                   builder: (context) => AdventurePage());*/

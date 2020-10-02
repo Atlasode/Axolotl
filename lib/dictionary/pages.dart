@@ -138,7 +138,7 @@ class _DictionaryPageState extends State<DictionaryPage> {
         }
         return FutureBuilder<Iterable<Verb>>(
             future: Future.wait(VerbCategory.validCategories.map((category) =>
-                Repositories.verbRepository
+                Repositories.verbs
                     .getVerb(VerbDefinition(infinitive, category)))),
             builder: (context, data) {
               Iterable<Verb> verbs = data.data;
@@ -274,7 +274,7 @@ class DictionarySearch extends SearchDelegate<String> {
   Widget buildResults(BuildContext context) {
     return FutureBuilder<List<String>>(
         initialData: [],
-        future: Repositories.verbRepository.getVerbsQuery(query),
+        future: Repositories.verbs.getVerbsQuery(query),
         builder: (context, data) {
           return Container(
               child: CustomScrollView(
@@ -304,7 +304,7 @@ class DictionarySearch extends SearchDelegate<String> {
   Widget buildSuggestions(BuildContext context) {
     return FutureBuilder<List<String>>(
         initialData: [],
-        future: Repositories.verbRepository.getVerbsQuery(query),
+        future: Repositories.verbs.getVerbsQuery(query),
         builder: (context, data) {
           return Container(
               child: CustomScrollView(
