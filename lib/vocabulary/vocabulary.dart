@@ -24,6 +24,8 @@ class VocabularyInfo implements AbstractInfo{
     return VocabularyDefinition(id, expectedLang);
   }
 
+  factory VocabularyInfo.fromJson(Map<String, dynamic> json) => _$VocabularyInfoFromJson(json);
+
   Map<String, dynamic> toJson() => _$VocabularyInfoToJson(this);
 
   @override

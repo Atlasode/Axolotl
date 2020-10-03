@@ -10,7 +10,10 @@ import 'package:axolotl/utils/common_utils.dart';
 import 'package:axolotl/vocabulary/vocabulary.dart';
 import 'package:axolotl/vocabulary/vocabulary_page.dart';
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:tuple/tuple.dart';
+
+part 'states.g.dart';
 
 enum TaskDifference {
   NONE,
@@ -187,6 +190,7 @@ class AdventureState {
   }
 }
 
+@JsonSerializable()
 class AdventureSettings {
   static const AdventureSettings EDIT =
       AdventureSettings(editEnabled: true, switchEnabled: true);
@@ -219,8 +223,13 @@ class AdventureSettings {
       this.replaceWithValid = false,
       this.testDirectly = false,
       this.switchEnabled = true});
+
+  factory AdventureSettings.fromJson(Map<String, dynamic> json) => _$AdventureSettingsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AdventureSettingsToJson(this);
 }
 
+@JsonSerializable(explicitToJson: true)
 class Adventure {
   // ignore: non_constant_identifier_names
   static const EMPTY = Adventure(name: "", displayName: "", taskData: const []);
@@ -234,6 +243,10 @@ class Adventure {
     this.name,
     this.displayName,
   });
+
+  factory Adventure.fromJson(Map<String, dynamic> json) => _$AdventureFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AdventureToJson(this);
 
   copyWith({List<AdventureTaskData> taskData, String name, String displayName}) {
     return Adventure(
@@ -312,6 +325,7 @@ class DummyAdventure {
 }
 
 enum TaskType {
+  NONE,
   COLLECTION,
   SENTENCE,
   GAP_SENTENCE,
@@ -394,12 +408,33 @@ abstract class AdventureTask<T> {
   String getDisplayName();
 }
 
+@JsonSerializable(createFactory: false)
 abstract class AdventureTaskData {
   final String name;
+  final TaskType type;
 
-  AdventureTaskData(this.name);
+  AdventureTaskData(this.name, this.type);
 
   Future<AdventureTask> createTask();
+
+  factory AdventureTaskData.fromJson(Map<String, dynamic> json){
+    TaskType type = json['type'];
+    switch (type) {
+      case TaskType.GAP_SENTENCE:
+        return TextAreaTaskData.fromJson(json);
+      case TaskType.VERB_INSTANCE:
+        return VerbInstanceTaskData.fromJson(json);
+      case TaskType.COLLECTION:
+        return VocabularyCollectionData.fromJson(json);
+      case TaskType.SENTENCE:
+        return null;
+      case TaskType.NONE:
+      default:
+        return null;
+    }
+  }
+
+  Map<String, dynamic> toJson();
 }
 
 // 00000000
@@ -593,8 +628,34 @@ class TaskState {
   }
 }
 
+enum BlankTextType{
+  NONE,
+  VERB,
+  VOCABULARY
+}
+
+@JsonSerializable(createFactory: false)
 abstract class BlankTextData {
+
+  final BlankTextType type;
+
+  const BlankTextData(this.type);
+
   Future<BlankText> create();
+
+  factory BlankTextData.fromJson(Map<String, dynamic> json){
+    BlankTextType type = json['type'];
+    switch (type) {
+      case BlankTextType.VERB:
+        return VerbBlankTextData.fromJson(json);
+      case BlankTextType.VOCABULARY:
+      case BlankTextType.NONE:
+      default:
+        return null;
+    }
+  }
+
+  Map<String, dynamic> toJson();
 }
 
 abstract class BlankText {
@@ -603,11 +664,16 @@ abstract class BlankText {
   String getHintText();
 }
 
+@JsonSerializable(explicitToJson: true)
 class TextSectionData {
   final String text;
   final List<BlankTextData> blanks;
 
   TextSectionData(this.text, this.blanks);
+
+  factory TextSectionData.fromJson(Map<String, dynamic> json) => _$TextSectionDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TextSectionDataToJson(this);
 
   Future<TextSection> create() async{
     return TextSection(text, await Future.wait(blanks.map((e) => e.create())));
@@ -637,10 +703,15 @@ class TextSection {
 
 }
 
+@JsonSerializable(explicitToJson: true)
 class TextAreaTaskData extends AdventureTaskData {
   final List<TextSectionData> sections;
 
-  TextAreaTaskData(String name, this.sections) : super(name);
+  TextAreaTaskData(String name, this.sections) : super(name, TaskType.GAP_SENTENCE);
+
+  factory TextAreaTaskData.fromJson(Map<String, dynamic> json) => _$TextAreaTaskDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TextAreaTaskDataToJson(this);
 
   @override
   Future<AdventureTask> createTask() async {

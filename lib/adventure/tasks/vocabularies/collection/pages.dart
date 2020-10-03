@@ -17,7 +17,8 @@ class VocabularyCollection extends StatelessWidget {
   Widget build(BuildContext context) {
     TextStyle style =
         DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: 16));
-    return Column(
+    return LayoutBuilder(
+        builder: (context, constraints) =>Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,45 +29,44 @@ class VocabularyCollection extends StatelessWidget {
             ),
           ),
           Center(
-            child: LayoutBuilder(
-              builder: (context, constraints) => Container(
-                constraints: BoxConstraints.tightForFinite(
-                    width: constraints.maxWidth * 0.8),
-                child: DataTable(
-                        columns: [
-                          DataColumn(label: Text('Deutsch', style: style)),
-                          DataColumn(label: Text('Español', style: style)),
-                        ],
-                        rows: [
-                          ...List.generate(task.vocabularies.length, (index) {
-                            VocabularyPair pair = task.vocabularies[index];
-                            return DataRow(cells: [
-                              DataCell(Center(
+            child: Container(
+                  constraints: BoxConstraints.tightForFinite(
+                      width: constraints.maxWidth * 0.8, height: constraints.maxHeight - 70),
+                  child: SingleChildScrollView(
+    child: DataTable(
+                          columns: [
+                            DataColumn(label: Text('Deutsch', style: style)),
+                            DataColumn(label: Text('Español', style: style)),
+                          ],
+                          rows: [
+                            ...List.generate(task.vocabularies.length, (index) {
+                              VocabularyPair pair = task.vocabularies[index];
+                              return DataRow(cells: [
+                                DataCell(Center(
+                                    child: Container(
+                                        constraints:
+                                        BoxConstraints.tightForFinite(
+                                            width:
+                                            constraints.maxWidth * 0.3),
+                                        child: Text(pair?.given?.terms?.join('/')??'Loading...',
+                                            style: style)))),
+                                DataCell(Center(
                                   child: Container(
-                                      constraints:
-                                      BoxConstraints.tightForFinite(
-                                          width:
-                                          constraints.maxWidth * 0.3),
-                                      child: Text(pair?.given?.terms?.join('/')??'Loading...',
-                                          style: style)))),
-                              DataCell(Center(
-                                child: Container(
-                                  constraints: BoxConstraints.tightForFinite(
-                                      width: constraints.maxWidth * 0.3),
-                                  child: TaskTextField(
-                                    taskState: taskState,
-                                    fieldIndex: index++,
+                                    constraints: BoxConstraints.tightForFinite(
+                                        width: constraints.maxWidth * 0.3),
+                                    child: TaskTextField(
+                                      taskState: taskState,
+                                      fieldIndex: index++,
+                                    ),
                                   ),
-                                ),
-                              ))
-                            ]);
-                          })
-                        ],
-                      ),
-              ),
-            ),
+                                ))
+                              ]);
+                            })
+                          ],
+                        )),
+                ),
           )
-        ]);
+        ]));
     /*return Column(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,

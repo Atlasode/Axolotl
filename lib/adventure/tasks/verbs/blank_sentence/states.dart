@@ -4,15 +4,23 @@ import 'package:axolotl/constants.dart';
 import 'package:axolotl/repositories/repositories.dart';
 import 'package:axolotl/vocabulary/verb.dart';
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-class VerbBlankTextData implements BlankTextData {
+part 'states.g.dart';
+
+@JsonSerializable(explicitToJson: true)
+class VerbBlankTextData extends BlankTextData {
 
   final VerbDefinition verb;
   final Person person;
   final bool showPronoun;
   final bool showTense;
 
-  const VerbBlankTextData(this.verb, this.person, {this.showPronoun = false, this.showTense = false});
+  const VerbBlankTextData(this.verb, this.person, {this.showPronoun = false, this.showTense = false}) : super(BlankTextType.VERB);
+
+  factory VerbBlankTextData.fromJson(Map<String, dynamic> json) => _$VerbBlankTextDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VerbBlankTextDataToJson(this);
 
   Future<VerbBlankText> create() async {
     return VerbBlankText(

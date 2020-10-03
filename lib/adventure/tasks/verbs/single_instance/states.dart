@@ -4,17 +4,25 @@ import 'package:axolotl/vocabulary/verb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:axolotl/utils/common_utils.dart';
 import 'package:axolotl/adventure/tasks/verbs/single_instance/pages.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'states.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class VerbInstanceTaskData extends AdventureTaskData {
   final VerbDefinition verb;
   final Set<Person> persons;
 
-  VerbInstanceTaskData(String name, this.verb, this.persons) : super(name);
+  VerbInstanceTaskData(String name, this.verb, this.persons) : super(name, TaskType.VERB_INSTANCE);
 
   @override
   Future<AdventureTask> createTask() async {
     return VerbInstanceTask(name, await Repositories.verbs.getVerb(verb), persons);
   }
+
+  factory VerbInstanceTaskData.fromJson(Map<String, dynamic> json) => _$VerbInstanceTaskDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VerbInstanceTaskDataToJson(this);
   
 }
 
