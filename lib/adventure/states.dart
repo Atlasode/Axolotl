@@ -620,7 +620,20 @@ class TextSection {
 
   TextSection(this.text, this.blanks);
 
-  List<String> get texts => text.split('\{(.*?)\}');
+  List<String> getTexts() {
+    String last = text;
+    List<String> texts = [];
+    for(int i = 0;i < blanks.length;i++){
+      List<String> splitTexts = last.split('{$i}');
+      if(splitTexts.length == 1){
+        break;
+      }
+      texts.add(splitTexts[0]);
+      last = splitTexts[1];
+    }
+    texts.add(last);
+    return texts;
+  }
 
 }
 

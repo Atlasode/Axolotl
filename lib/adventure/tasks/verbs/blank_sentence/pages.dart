@@ -26,17 +26,18 @@ class VerbTextArea extends StatelessWidget {
           ...List.generate(task.sections.length, (sectionIndex) {
             TextSection section = task.sections[sectionIndex];
             List<InlineSpan> spans = [];
-            for (int i = 0; i < (section.texts.length / 2).floor(); i++) {
+            List<String> texts = section.getTexts();
+            for (int i = 0; i < (texts.length / 2).floor(); i++) {
               TextStyle style = fieldStyle(context, taskState, sectionIndex);
               double width = blankFieldSize(section.blanks[i].getText(), style).width;
               spans.add(TextSpan(
                   style: blankTextStyle(context),
                   text:
-                      '${section.texts[i * 2]} (${section.blanks[i].getHintText()}) '));
+                      '${texts[i * 2]} (${section.blanks[i].getHintText()}) '));
               spans.add(WidgetSpan(
                   child: Container(
                       width: width * 2, height: 20, child: TaskTextField(taskState: taskState, fieldIndex: sectionIndex, selection: false))));
-              spans.add(TextSpan(text: section.texts[i * 2 + 1]));
+              spans.add(TextSpan(text: texts[i * 2 + 1]));
             }
             return <Widget>[
               RichText(
